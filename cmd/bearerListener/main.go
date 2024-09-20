@@ -231,14 +231,17 @@ func main() {
 				continue
 			}
 
-			locator, err := wrp.PayloadLocator(&event)
+			var payload map[string]any
+			err = json.Unmarshal(event.Payload, &payload)
+			//fmt.Println("wrp.Payload.id", payload["id"]) // device id, which is almost always a mac
+			//locator, err := wrp.PayloadLocator(&event)
 			if err != nil {
 				continue
 			}
 			now := time.Now()
 			list.lock.Lock()
 			list.Items = append(list.Items, ListItem{
-				MAC:  locator.Authority,
+				MAC:  payload["id"].(string),
 				When: now,
 			})
 			list.lock.Unlock()
