@@ -159,7 +159,9 @@ func main() {
 				ReceiverURL: receiverURL,
 				ContentType: "application/json",
 			},
-			Events:   []string{"device-status"},
+			Events: []string{
+				"device-status/.*/online",
+			},
 			Duration: webhook.CustomDuration(5 * time.Minute),
 		},
 		listener.DecorateRequest(listener.DecoratorFunc(
