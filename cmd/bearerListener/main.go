@@ -63,6 +63,7 @@ func (el *eventListener) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	defer w.WriteHeader(http.StatusOK)
 
+	fmt.Println("Got a request with body:", string(body))
 	var event WRPEvent
 	err = json.Unmarshal(body, &event)
 	if err != nil {
@@ -197,34 +198,37 @@ func main() {
 	}()
 
 	list := &List{}
+	go func() {
+		for {
+			event := <-el.out
+
+			good := false
+			for _, fw := range goodFirmware {
+				if event.Firmware == fw {
+					good = true
+				}
+			}
+			if good {
+				continue
+			}
+
+			now := time.Now()
+			list.lock.Lock()
+			list.Items = append(list.Items, ListItem{
+				MAC:  event.DeviceID,
+				When: now,
+			})
+			list.lock.Unlock()
+		}
+	}()
+
 	http.Handle("/list", list)
 	http.HandleFunc("/", simpleHandler)
-	http.ListenAndServe(":9999", nil)
+	http.ListenAndServe("[::]:9999", nil)
 	if err != nil {
 		panic(err)
 	}
 
-	for {
-		event := <-el.out
-
-		good := false
-		for _, fw := range goodFirmware {
-			if event.Firmware == fw {
-				good = true
-			}
-		}
-		if good {
-			continue
-		}
-
-		now := time.Now()
-		list.lock.Lock()
-		list.Items = append(list.Items, ListItem{
-			MAC:  event.DeviceID,
-			When: now,
-		})
-		list.lock.Unlock()
-	}
 }
 
 type SatResponse struct {
