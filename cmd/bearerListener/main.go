@@ -76,12 +76,12 @@ func (el *eventListener) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var message wrp.Message
 	err = wrp.NewDecoderBytes(body, wrp.Msgpack).Decode(&message)
 	if err != nil {
-		fmt.Println("Failed to decode WRP message:", err)
+		//fmt.Println("Failed to decode WRP message:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	fmt.Println("Got a good WRP message.")
+	//fmt.Println("Got a good WRP message.")
 	el.out <- message
 }
 
@@ -233,8 +233,6 @@ func main() {
 
 			var payload map[string]any
 			err = json.Unmarshal(event.Payload, &payload)
-			//fmt.Println("wrp.Payload.id", payload["id"]) // device id, which is almost always a mac
-			//locator, err := wrp.PayloadLocator(&event)
 			if err != nil {
 				continue
 			}
@@ -254,7 +252,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 }
 
 type SatResponse struct {
