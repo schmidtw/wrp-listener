@@ -65,6 +65,10 @@ func (el *eventListener) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer w.WriteHeader(http.StatusOK)
 
 	fmt.Println("Got a request with body:", string(body))
+	fmt.Println("Headers:")
+	for k, v := range r.Header {
+		fmt.Printf("  %s: %s\n", k, v)
+	}
 	var event WRPEvent
 	err = json.Unmarshal(body, &event)
 	if err != nil {
