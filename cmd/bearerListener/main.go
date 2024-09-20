@@ -122,7 +122,10 @@ func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/text")
 
 	l.lock.Lock()
-	json.NewEncoder(w).Encode(l.Items)
+
+	for _, item := range l.Items {
+		fmt.Fprintf(w, "%s\n", item.MAC)
+	}
 	l.lock.Unlock()
 }
 
@@ -228,7 +231,7 @@ func main() {
 				continue
 			}
 
-			locator, err := wrp.ParseLocator(event.Source)
+			locator, err := wrp.PayloadLocator(&event)
 			if err != nil {
 				continue
 			}
