@@ -16,12 +16,13 @@ import (
 	"time"
 
 	"github.com/xmidt-org/webhook-schema"
+	"github.com/xmidt-org/wrp-go/v3"
 	listener "github.com/xmidt-org/wrp-listener"
 )
 
 type eventListener struct {
 	l   *listener.Listener
-	out chan WRPEvent
+	out chan wrp.Message
 }
 
 type WRPEvent struct {
@@ -69,13 +70,16 @@ func (el *eventListener) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for k, v := range r.Header {
 		fmt.Printf("  %s: %s\n", k, v)
 	}
-	var event WRPEvent
-	err = json.Unmarshal(body, &event)
+
+	var message wrp.Message
+	err = wrp.NewDecoderBytes(body, wrp.Msgpack).Decode(&message)
 	if err != nil {
+		fmt.Println("Failed to decode WRP message:", err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	el.out <- event
+	el.out <- message
 }
 
 type ListItem struct {
@@ -187,7 +191,7 @@ func main() {
 
 	el := eventListener{
 		l:   whl,
-		out: make(chan WRPEvent, 1000),
+		out: make(chan wrp.Message, 1000),
 	}
 
 	whl.Register(context.Background(), sharedSecrets[0])
@@ -213,7 +217,7 @@ func main() {
 
 			good := false
 			for _, fw := range goodFirmware {
-				if event.Firmware == fw {
+				if event.Metadata["fw-name"] == fw {
 					good = true
 				}
 			}
@@ -224,7 +228,7 @@ func main() {
 			now := time.Now()
 			list.lock.Lock()
 			list.Items = append(list.Items, ListItem{
-				MAC:  event.DeviceID,
+				MAC:  event.Source,
 				When: now,
 			})
 			list.lock.Unlock()
