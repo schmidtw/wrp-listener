@@ -4,6 +4,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -182,6 +183,8 @@ func main() {
 		l:   whl,
 		out: make(chan WRPEvent, 1000),
 	}
+
+	whl.Register(context.Background(), sharedSecrets[0])
 
 	go func() {
 		if useTLS {
