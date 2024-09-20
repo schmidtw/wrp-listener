@@ -164,6 +164,7 @@ func main() {
 		&webhook.Registration{
 			Config: webhook.DeliveryConfig{
 				ReceiverURL: receiverURL,
+				ContentType: "application/msgpack",
 			},
 			Events: []string{
 				"device-status/.*/online",
