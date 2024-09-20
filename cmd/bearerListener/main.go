@@ -81,6 +81,7 @@ func (el *eventListener) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println("Got a good WRP message.")
 	el.out <- message
 }
 
@@ -118,7 +119,7 @@ func (l *List) SortNewestFirst() {
 func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	l.RemoveOldItems()
 	l.SortNewestFirst()
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/text")
 
 	l.lock.Lock()
 	json.NewEncoder(w).Encode(l.Items)
