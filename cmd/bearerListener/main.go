@@ -10,7 +10,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/xmidt-org/webhook-schema"
@@ -18,7 +20,23 @@ import (
 )
 
 type eventListener struct {
-	l *listener.Listener
+	l   *listener.Listener
+	out chan WRPEvent
+}
+
+type WRPEvent struct {
+	Source          string `json:"source"`
+	Destination     string `json:"destination"`
+	ContentType     string `json:"content_type"`
+	TransactionUUID string `json:"transaction_uuid"`
+	DeviceID        string `json:"device_id"`
+	DeviceStatus    string `json:"device_status"`
+	Firmware        string `json:"firmware"`
+}
+
+var goodFirmware = []string{
+	"SKXI11ADSSOFT_029.517.00.7.4p33s1_PROD_sdy",
+	"SKTL11MEIFT_029.517.00.7.4p33s1_PROD_sdy",
 }
 
 func (el *eventListener) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -44,9 +62,61 @@ func (el *eventListener) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(string(body))
+	defer w.WriteHeader(http.StatusOK)
 
+	var event WRPEvent
+	err = json.Unmarshal(body, &event)
+	if err != nil {
+		return
+	}
+
+	el.out <- event
+}
+
+type ListItem struct {
+	MAC  string
+	When time.Time
+}
+
+type List struct {
+	lock  sync.Mutex
+	Items []ListItem
+}
+
+func (l *List) RemoveOldItems() {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+	cutoff := time.Now().Add(-5 * time.Minute)
+	var filteredItems []ListItem
+	for _, item := range l.Items {
+		if item.When.After(cutoff) {
+			filteredItems = append(filteredItems, item)
+		}
+	}
+	l.Items = filteredItems
+}
+
+func (l *List) SortNewestFirst() {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+	sort.Slice(l.Items, func(i, j int) bool {
+		return l.Items[i].When.After(l.Items[j].When)
+	})
+}
+
+func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	l.RemoveOldItems()
+	l.SortNewestFirst()
+	w.Header().Set("Content-Type", "application/json")
+
+	l.lock.Lock()
+	json.NewEncoder(w).Encode(l.Items)
+	l.lock.Unlock()
+}
+
+func simpleHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Hello, world!"))
 }
 
 func main() {
@@ -113,7 +183,8 @@ func main() {
 	fmt.Println(whl.String())
 
 	el := eventListener{
-		l: whl,
+		l:   whl,
+		out: make(chan WRPEvent, 1000),
 	}
 
 	go func() {
@@ -130,15 +201,49 @@ func main() {
 		}
 	}()
 
-	// Register for webhook events, using the secret "foobar" as the shared
-	// secret.
-	err = whl.Register(context.Background(), sharedSecrets[0])
+	go func() {
+		for {
+			// Register for webhook events, using the secret "foobar" as the shared
+			// secret.
+			err = whl.Register(context.Background(), sharedSecrets[0])
+			if err != nil {
+				panic(err)
+			}
+
+			for {
+				time.Sleep(1 * time.Minute)
+			}
+		}
+	}()
+
+	list := &List{}
+	http.Handle("/list", list)
+	http.HandleFunc("/", simpleHandler)
+	http.ListenAndServe(":9999", nil)
 	if err != nil {
 		panic(err)
 	}
 
 	for {
-		time.Sleep(1 * time.Minute)
+		event := <-el.out
+
+		good := false
+		for _, fw := range goodFirmware {
+			if event.Firmware == fw {
+				good = true
+			}
+		}
+		if good {
+			continue
+		}
+
+		now := time.Now()
+		list.lock.Lock()
+		list.Items = append(list.Items, ListItem{
+			MAC:  event.DeviceID,
+			When: now,
+		})
+		list.lock.Unlock()
 	}
 }
 
