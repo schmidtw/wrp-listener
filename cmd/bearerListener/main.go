@@ -81,8 +81,6 @@ func (el *eventListener) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("WRP:", message)
-
 	el.out <- message
 }
 
@@ -229,10 +227,14 @@ func main() {
 				continue
 			}
 
+			locator, err := wrp.ParseLocator(event.Source)
+			if err != nil {
+				continue
+			}
 			now := time.Now()
 			list.lock.Lock()
 			list.Items = append(list.Items, ListItem{
-				MAC:  event.Source,
+				MAC:  locator.Authority,
 				When: now,
 			})
 			list.lock.Unlock()
