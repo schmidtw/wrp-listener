@@ -4,7 +4,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -143,11 +142,6 @@ func main() {
 	fmt.Println("SAT_CLIENT_SECRET       : ", os.Getenv("SAT_CLIENT_SECRET"))
 	fmt.Printf("                 use TLS: %t\n", useTLS)
 
-	sat, err := getSat()
-	if err != nil {
-		panic(err)
-	}
-
 	for i := range sharedSecrets {
 		sharedSecrets[i] = strings.TrimSpace(sharedSecrets[i])
 	}
@@ -159,21 +153,22 @@ func main() {
 				ReceiverURL: receiverURL,
 				ContentType: "application/json",
 			},
-			Events: []string{"device-status"},
-			//Duration: webhook.CustomDuration(5 * time.Minute),
-			Duration: webhook.CustomDuration(15 * time.Second),
+			Events:   []string{"device-status"},
+			Duration: webhook.CustomDuration(5 * time.Minute),
 		},
 		listener.DecorateRequest(listener.DecoratorFunc(
 			func(r *http.Request) error {
-				if os.Getenv("WEBHOOK_BEARER_TOKEN") == "" {
-					return nil
+				sat, err := getSat()
+				if err != nil {
+					panic(err)
 				}
 				r.Header.Set("Authorization", "Bearer "+sat)
 				return nil
 			},
 		)),
 		listener.AcceptSHA1(),
-		listener.Once(),
+		listener.AcceptSHA256(),
+		listener.Interval(time.Minute),
 		listener.AcceptedSecrets(sharedSecrets...),
 	)
 	if err != nil {
@@ -197,21 +192,6 @@ func main() {
 			err := http.ListenAndServe(localAddress, &el) // nolint: gosec
 			if err != nil {
 				panic(err)
-			}
-		}
-	}()
-
-	go func() {
-		for {
-			// Register for webhook events, using the secret "foobar" as the shared
-			// secret.
-			err = whl.Register(context.Background(), sharedSecrets[0])
-			if err != nil {
-				panic(err)
-			}
-
-			for {
-				time.Sleep(1 * time.Minute)
 			}
 		}
 	}()
