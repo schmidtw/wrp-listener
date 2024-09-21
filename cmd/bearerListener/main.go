@@ -30,7 +30,7 @@ type targetCPE struct {
 	Firmware string
 }
 
-var badFirmware = []targetCPE{
+var goodFirmware = []targetCPE{
 	{
 		Hardware: "SKTL11AEI",
 		Firmware: "SKTL11AEI_030.527.00.7.4p31s1_PROD_sdy",
@@ -231,10 +231,10 @@ func main() {
 			event := <-el.out
 
 			good := true
-			for _, fw := range badFirmware {
-				if strings.ToLower(event.Metadata["/hw-model"]) == strings.ToLower(fw.Hardware) &&
-					strings.ToLower(event.Metadata["/fw-name"]) == strings.ToLower(fw.Firmware) {
-					fmt.Println("Bad firmware:", event.Metadata["/fw-name"])
+			for _, fw := range goodFirmware {
+				if strings.ToLower(event.Metadata["/hw-model"]) == strings.ToLower(fw.Hardware) {
+					if strings.ToLower(event.Metadata["/fw-name"]) != strings.ToLower(fw.Firmware) {
+					//fmt.Println("Bad firmware:", event.Metadata["/fw-name"])
 					good = false
 				}
 
