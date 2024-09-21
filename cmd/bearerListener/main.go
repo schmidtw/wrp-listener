@@ -22,6 +22,9 @@ import (
 	listener "github.com/xmidt-org/wrp-listener"
 )
 
+// Start
+
+const cutoff = 5 * time.Second
 const maxCount = 100
 const frequency = 3*time.Minute + 20*time.Second
 const jitter = 10 * time.Second
@@ -172,16 +175,13 @@ func (l *List) GiveMeBoxesISawBefore(d time.Duration) []string {
 	var macs []string
 	for idx, item := range l.Items {
 		if idx < maxCount {
-			if item.When.After(cutoff) {
+			if item.When.Before(cutoff) ||
+				(item.When.After(cutoff) && item.When.Before(cutoff.Add(time.Second*20))) {
 				macs = append(macs, item.MAC)
 			}
 		}
 	}
 	return macs
-}
-
-func randomJitter(jitter time.Duration) time.Duration {
-	return time.Duration(float64(jitter) * (0.5 - 0.5*rand.Float64()))
 }
 
 func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
