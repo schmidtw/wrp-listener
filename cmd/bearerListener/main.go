@@ -113,7 +113,7 @@ type List struct {
 func (l *List) RemoveOldItems() {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	cutoff := time.Now().Add(-1 * time.Minute)
+	cutoff := time.Now().Add(-15 * time.Minute)
 	var filteredItems []ListItem
 	for _, item := range l.Items {
 		if item.When.After(cutoff) {
@@ -139,7 +139,7 @@ func (l *List) GetAverageBootTime() time.Duration {
 	var total time.Duration
 	count := 0
 	for idx, item := range l.Items {
-		if !item.BootTime.IsZero() && idx < 50 &&
+		if !item.BootTime.IsZero() && idx < 500 &&
 			item.BootTime.Before(item.When.Add(time.Hour)) &&
 			item.BootTime.After(item.When.Add(-1*time.Hour)) {
 			total += item.When.Sub(item.BootTime)
@@ -165,14 +165,14 @@ func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	/*
 		for idx, item := range l.Items {
-			if idx < 50 && item.BootTime.Before(item.When.Add(time.Hour)) &&
+			if idx < 500 && item.BootTime.Before(item.When.Add(time.Hour)) &&
 				item.BootTime.After(item.When.Add(-1*time.Hour)) {
 				w.Header().Add("X-BootTimeRoot", item.BootTime.String())
 			}
 		}
 	*/
 	for idx, item := range l.Items {
-		if idx < 50 {
+		if idx < 500 {
 			fmt.Fprintf(w, "%s\n", item.MAC)
 		}
 	}
@@ -268,6 +268,8 @@ func main() {
 
 	list := &List{}
 	go func() {
+		happy, err := os.Create("/tmp/happy.txt")
+		defer happy.Close()
 		for {
 			event := <-el.out
 
@@ -281,9 +283,6 @@ func main() {
 					}
 				}
 
-			}
-			if good {
-				continue
 			}
 			//fmt.Println("Bad firmware:", event.Metadata["/fw-name"])
 
@@ -305,6 +304,11 @@ func main() {
 			var payload map[string]any
 			err = json.Unmarshal(event.Payload, &payload)
 			if err != nil {
+				continue
+			}
+
+			if good {
+				fmt.Fprintln(happy, payload["id"])
 				continue
 			}
 
