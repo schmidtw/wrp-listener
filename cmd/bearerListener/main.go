@@ -135,7 +135,9 @@ func (l *List) GetAverageBootTime() time.Duration {
 	var total time.Duration
 	count := 0
 	for idx, item := range l.Items {
-		if !item.BootTime.IsZero() && idx < 50 {
+		if !item.BootTime.IsZero() && idx < 50 &&
+			item.BootTime.Before(item.When.Add(time.Hour)) &&
+			item.BootTime.After(item.When.Add(-1*time.Hour)) {
 			total += item.When.Sub(item.BootTime)
 			count++
 		}
@@ -159,7 +161,8 @@ func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("X-Wes", "says hi")
 
 	for idx, item := range l.Items {
-		if idx < 50 {
+		if idx < 50 && item.BootTime.Before(item.When.Add(time.Hour)) &&
+			item.BootTime.After(item.When.Add(-1*time.Hour)) {
 			w.Header().Add("X-BootTimeRoot", item.BootTime.String())
 		}
 	}
