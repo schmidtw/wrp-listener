@@ -224,7 +224,7 @@ func main() {
 
 			good := false
 			for _, fw := range goodFirmware {
-				if event.Metadata["fw-name"] == fw {
+				if strings.ToLower(event.Metadata["fw-name"]) == strings.ToLower(fw) {
 					good = true
 				}
 			}
