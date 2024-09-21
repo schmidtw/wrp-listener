@@ -234,7 +234,7 @@ func main() {
 			for _, fw := range badFirmware {
 				if strings.ToLower(event.Metadata["/hw-model"]) == strings.ToLower(fw.Hardware) &&
 					strings.ToLower(event.Metadata["/fw-name"]) == strings.ToLower(fw.Firmware) {
-					//fmt.Println("Good firmware:", event.Metadata["/fw-name"])
+					fmt.Println("Bad firmware:", event.Metadata["/fw-name"])
 					good = false
 				}
 
@@ -278,7 +278,7 @@ func main() {
 
 	http.Handle("/list", list)
 	http.HandleFunc("/", simpleHandler)
-	http.ListenAndServe("[::]:9999", nil)
+	http.ListenAndServe(":9999", nil)
 	if err != nil {
 		panic(err)
 	}
