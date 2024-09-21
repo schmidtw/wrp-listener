@@ -23,8 +23,8 @@ import (
 )
 
 const maxCount = 100
-const frequency = 3*time.Minute + 30*time.Second
-const jitter = 30 * time.Second
+const frequency = 3*time.Minute + 20*time.Second
+const jitter = 10 * time.Second
 
 type eventListener struct {
 	l   *listener.Listener
