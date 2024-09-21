@@ -47,6 +47,10 @@ var goodFirmware = []targetCPE{
 	}, {
 		Hardware: "SKXI11AENSOIT",
 		Firmware: "SKXI11AENSOIT_030.528.00.7.4p32s1_PROD_sdy-signed",
+	}, {
+		Firmware: "SKXI11ADSSOFT_029.517.00.7.4p33s1_PROD_sdy",
+	}, {
+		Firmware: "SKTL11MEIFT_029.517.00.7.4p33s1_PROD_sdy",
 	},
 }
 
@@ -159,14 +163,14 @@ func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("X-BootTimeLatency", l.GetAverageBootTime().String())
 
-	/*
-		for idx, item := range l.Items {
-			if idx < 50 && item.BootTime.Before(item.When.Add(time.Hour)) &&
-				item.BootTime.After(item.When.Add(-1*time.Hour)) {
-				w.Header().Add("X-BootTimeRoot", item.BootTime.String())
-			}
+	for idx, item := range l.Items {
+		if idx < 50 && item.BootTime.Before(item.When.Add(time.Hour)) &&
+			item.BootTime.After(item.When.Add(-1*time.Hour)) {
+			w.Header().Add("X-BootTimeRoot", item.BootTime.String())
 		}
-	*/
+	}
+	/*
+	 */
 	for idx, item := range l.Items {
 		if idx < 50 {
 			fmt.Fprintf(w, "%s\n", item.MAC)
@@ -269,7 +273,8 @@ func main() {
 
 			good := true
 			for _, fw := range goodFirmware {
-				if strings.ToLower(event.Metadata["/hw-model"]) == strings.ToLower(fw.Hardware) {
+				if strings.ToLower(event.Metadata["/hw-model"]) == strings.ToLower(fw.Hardware) ||
+					fw.Hardware == "" {
 					if strings.ToLower(event.Metadata["/fw-name"]) != strings.ToLower(fw.Firmware) {
 						//fmt.Printf("Bad %s -- %s\n", event.Metadata["/hw-model"], event.Metadata["/fw-name"])
 						good = false
