@@ -155,13 +155,13 @@ func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	l.lock.Lock()
 
-	w.Header().Set("BootTimeLatency", l.GetAverageBootTime().String())
+	w.Header().Set("X-BootTimeLatency", l.GetAverageBootTime().String())
 
 	for idx, item := range l.Items {
 		if idx < 50 {
 			fmt.Fprintf(w, "%s\n", item.MAC)
-			w.Header().Add("Wes", "says hi")
-			w.Header().Add("BootTimeRoot", item.BootTime.String())
+			w.Header().Add("X-Wes", "says hi")
+			w.Header().Add("X-BootTimeRoot", item.BootTime.String())
 		}
 	}
 	l.lock.Unlock()
