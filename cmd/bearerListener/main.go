@@ -161,7 +161,7 @@ func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if idx < 50 {
 			fmt.Fprintf(w, "%s\n", item.MAC)
 			w.Header().Set("Wes", "says hi")
-			w.Header().Set("BootTimeRoot", item.BootTime.String())
+			w.Header().Add("BootTimeRoot", item.BootTime.String())
 		}
 	}
 	l.lock.Unlock()
