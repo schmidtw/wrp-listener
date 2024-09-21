@@ -296,7 +296,7 @@ func main() {
 			now := time.Now()
 
 			list.lock.Lock()
-			bt := strings.TrimSpace(event.Metadata["boot-time"])
+			bt := strings.TrimSpace(event.Metadata["/boot-time"])
 			bootedAt := time.Time{}
 			if bt != "" {
 				unixTime, err := strconv.ParseInt(bt, 10, 64)
