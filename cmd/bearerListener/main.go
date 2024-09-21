@@ -224,10 +224,10 @@ func main() {
 
 			good := false
 			for _, fw := range goodFirmware {
-				if strings.ToLower(event.Metadata["fw-name"]) == strings.ToLower(fw) {
+				if strings.ToLower(event.Metadata["/fw-name"]) == strings.ToLower(fw) {
 					good = true
 				} else {
-					fmt.Println("Bad firmware:", event.Metadata["fw-name"])
+					fmt.Println("Bad firmware:", event.Metadata["/fw-name"])
 					fmt.Println(event.Metadata)
 				}
 
