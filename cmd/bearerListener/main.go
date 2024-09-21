@@ -132,8 +132,10 @@ func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	l.lock.Lock()
 
-	for _, item := range l.Items {
-		fmt.Fprintf(w, "%s\n", item.MAC)
+	for idx, item := range l.Items {
+		if idx < 50 {
+			fmt.Fprintf(w, "%s\n", item.MAC)
+		}
 	}
 	l.lock.Unlock()
 }
