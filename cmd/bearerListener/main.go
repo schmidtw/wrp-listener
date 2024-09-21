@@ -234,8 +234,9 @@ func main() {
 			for _, fw := range goodFirmware {
 				if strings.ToLower(event.Metadata["/hw-model"]) == strings.ToLower(fw.Hardware) {
 					if strings.ToLower(event.Metadata["/fw-name"]) != strings.ToLower(fw.Firmware) {
-					//fmt.Println("Bad firmware:", event.Metadata["/fw-name"])
-					good = false
+						//fmt.Println("Bad firmware:", event.Metadata["/fw-name"])
+						good = false
+					}
 				}
 
 			}
