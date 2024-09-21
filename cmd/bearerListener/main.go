@@ -232,11 +232,11 @@ func main() {
 				continue
 			}
 
-			bt := event.Metadata["boot-time"]
+			bt := strings.TrimSpace(event.Metadata["boot-time"])
 			if bt != "" {
 				unixTime, err := strconv.ParseInt(bt, 10, 64)
 				if err != nil {
-					fmt.Println("Failed to parse boot-time:", err)
+					fmt.Println("Failed to parse boot-time:", bt)
 					continue
 				}
 				bootTime := time.Unix(unixTime, 0)
