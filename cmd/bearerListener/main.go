@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"os"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -236,18 +235,20 @@ func main() {
 
 			//fmt.Println("Bad firmware:", event.Metadata["/fw-name"])
 
-			bt := strings.TrimSpace(event.Metadata["boot-time"])
-			if bt != "" {
-				unixTime, err := strconv.ParseInt(bt, 10, 64)
-				if err != nil {
-					fmt.Println("Failed to parse boot-time:", bt)
-					continue
+			/*
+				bt := strings.TrimSpace(event.Metadata["boot-time"])
+				if bt != "" {
+					unixTime, err := strconv.ParseInt(bt, 10, 64)
+					if err != nil {
+						fmt.Println("Failed to parse boot-time:", bt)
+						continue
+					}
+					bootTime := time.Unix(unixTime, 0)
+					if time.Since(bootTime) > 15*time.Minute {
+						continue
+					}
 				}
-				bootTime := time.Unix(unixTime, 0)
-				if time.Since(bootTime) > 15*time.Minute {
-					continue
-				}
-			}
+			*/
 
 			var payload map[string]any
 			err = json.Unmarshal(event.Payload, &payload)
