@@ -234,7 +234,7 @@ func main() {
 				continue
 			}
 
-			fmt.Println("Bad firmware:", event.Metadata["/fw-name"])
+			//fmt.Println("Bad firmware:", event.Metadata["/fw-name"])
 
 			bt := strings.TrimSpace(event.Metadata["boot-time"])
 			if bt != "" {
