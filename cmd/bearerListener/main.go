@@ -25,19 +25,28 @@ type eventListener struct {
 	out chan wrp.Message
 }
 
-type WRPEvent struct {
-	Source          string `json:"source"`
-	Destination     string `json:"destination"`
-	ContentType     string `json:"content_type"`
-	TransactionUUID string `json:"transaction_uuid"`
-	DeviceID        string `json:"device_id"`
-	DeviceStatus    string `json:"device_status"`
-	Firmware        string `json:"firmware"`
+type targetCPE struct {
+	Hardware string
+	Firmware string
 }
 
-var goodFirmware = []string{
-	"SKXI11ADSSOFT_029.517.00.7.4p33s1_PROD_sdy",
-	"SKTL11MEIFT_029.517.00.7.4p33s1_PROD_sdy",
+var badFirmware = []targetCPE{
+	{
+		Hardware: "SKTL11AEI",
+		Firmware: "SKTL11AEI_030.527.00.7.4p31s1_PROD_sdy",
+	}, {
+		Hardware: "SKXI11ADS",
+		Firmware: "SKXI11ADS_030.528.00.7.4p32s1_PROD_sdy",
+	}, {
+		Hardware: "SKXI11AEISODE",
+		Firmware: "SKXI11AEISODE_031.410.01.7.4p32s2_PROD_sdy",
+	}, {
+		Hardware: "SKTL11MEIIT",
+		Firmware: "SKTL11MEIIT_030.528.00.7.4p32s1_PROD_sdy",
+	}, {
+		Hardware: "SKXI11AENSOIT",
+		Firmware: "SKXI11AENSOIT_030.528.00.7.4p32s1_PROD_sdy-signed",
+	},
 }
 
 func (el *eventListener) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -221,18 +230,18 @@ func main() {
 		for {
 			event := <-el.out
 
-			good := false
-			for _, fw := range goodFirmware {
-				if strings.ToLower(event.Metadata["/fw-name"]) == strings.ToLower(fw) {
+			good := true
+			for _, fw := range badFirmware {
+				if strings.ToLower(event.Metadata["/hw-model"]) == strings.ToLower(fw.Hardware) &&
+					strings.ToLower(event.Metadata["/fw-name"]) == strings.ToLower(fw.Firmware) {
 					//fmt.Println("Good firmware:", event.Metadata["/fw-name"])
-					good = true
+					good = false
 				}
 
 			}
 			if good {
 				continue
 			}
-
 			//fmt.Println("Bad firmware:", event.Metadata["/fw-name"])
 
 			/*
