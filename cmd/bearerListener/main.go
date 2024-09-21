@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -98,7 +99,7 @@ type List struct {
 func (l *List) RemoveOldItems() {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	cutoff := time.Now().Add(-5 * time.Minute)
+	cutoff := time.Now().Add(-1 * time.Minute)
 	var filteredItems []ListItem
 	for _, item := range l.Items {
 		if item.When.After(cutoff) {
@@ -231,12 +232,25 @@ func main() {
 				continue
 			}
 
+			bt := event.Metadata["boot-time"]
+			unixTime, err := strconv.ParseInt(bt, 10, 64)
+			if err != nil {
+				fmt.Println("Failed to parse boot-time:", err)
+				continue
+			}
+			bootTime := time.Unix(unixTime, 0)
+			if time.Since(bootTime) > 15*time.Minute {
+				continue
+			}
+
 			var payload map[string]any
 			err = json.Unmarshal(event.Payload, &payload)
 			if err != nil {
 				continue
 			}
+
 			now := time.Now()
+
 			list.lock.Lock()
 			list.Items = append(list.Items, ListItem{
 				MAC:  payload["id"].(string),
