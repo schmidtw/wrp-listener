@@ -111,9 +111,13 @@ type List struct {
 }
 
 func (l *List) RemoveOldItems() {
+	l.removeOldItems(-15 * time.Minute)
+}
+
+func (l *List) removeOldItems(d time.Duration) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	cutoff := time.Now().Add(-15 * time.Minute)
+	cutoff := time.Now().Add(d)
 	var filteredItems []ListItem
 	for _, item := range l.Items {
 		if item.When.After(cutoff) {
@@ -266,10 +270,26 @@ func main() {
 		}
 	}()
 
+	happy := &List{}
+
+	go func() {
+		for {
+			time.Sleep(5 * time.Minute)
+			f, err := os.Create("/tmp/happy.txt")
+			if err != nil {
+				continue
+
+			}
+			happy.removeOldItems(-1 * time.Hour)
+			for _, item := range happy.Items {
+				fmt.Fprintf(f, "%s\n", item.MAC)
+			}
+			f.Close()
+		}
+	}()
+
 	list := &List{}
 	go func() {
-		happy, err := os.Create("/tmp/happy.txt")
-		defer happy.Close()
 		for {
 			event := <-el.out
 
@@ -307,12 +327,17 @@ func main() {
 				continue
 			}
 
+			now := time.Now()
+
 			if good {
-				fmt.Fprintln(happy, payload["id"])
+				happy.lock.Lock()
+				happy.Items = append(happy.Items, ListItem{
+					MAC:  payload["id"].(string),
+					When: now,
+				})
+				happy.lock.Unlock()
 				continue
 			}
-
-			now := time.Now()
 
 			list.lock.Lock()
 			bt := strings.TrimSpace(event.Metadata["/boot-time"])
