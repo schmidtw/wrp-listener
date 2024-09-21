@@ -189,8 +189,6 @@ func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	l.SortNewestFirst()
 	w.Header().Set("Content-Type", "application/text")
 
-	l.lock.Lock()
-
 	w.Header().Set("X-BootTimeLatency", l.GetAverageBootTime().String())
 
 	/*
@@ -205,7 +203,6 @@ func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for _, mac := range got {
 		fmt.Fprintf(w, "%s\n", mac)
 	}
-	l.lock.Unlock()
 }
 
 func simpleHandler(w http.ResponseWriter, r *http.Request) {
