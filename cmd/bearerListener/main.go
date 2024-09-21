@@ -136,7 +136,7 @@ func (l *List) GetAverageBootTime() time.Duration {
 	count := 0
 	for _, item := range l.Items {
 		if !item.BootTime.IsZero() {
-			total += item.BootTime.Sub(item.When)
+			total += item.When.Sub(item.BootTime)
 			count++
 		}
 	}
