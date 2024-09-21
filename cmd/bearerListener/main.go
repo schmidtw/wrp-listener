@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand/v2"
 	"net/http"
 	"os"
 	"sort"
@@ -20,6 +21,10 @@ import (
 	"github.com/xmidt-org/wrp-go/v3"
 	listener "github.com/xmidt-org/wrp-listener"
 )
+
+const maxCount = 100
+const frequency = 3*time.Minute + 30*time.Second
+const jitter = 30 * time.Second
 
 type eventListener struct {
 	l   *listener.Listener
@@ -143,7 +148,7 @@ func (l *List) GetAverageBootTime() time.Duration {
 	var total time.Duration
 	count := 0
 	for idx, item := range l.Items {
-		if !item.BootTime.IsZero() && idx < 500 &&
+		if !item.BootTime.IsZero() && idx < maxCount &&
 			item.BootTime.Before(item.When.Add(time.Hour)) &&
 			item.BootTime.After(item.When.Add(-1*time.Hour)) {
 			total += item.When.Sub(item.BootTime)
@@ -158,6 +163,27 @@ func (l *List) GetAverageBootTime() time.Duration {
 	return total / time.Duration(count)
 }
 
+func (l *List) GiveMeBoxesISawBefore(d time.Duration) []string {
+	j := time.Duration(float64(jitter) * (0.5 - 0.5*rand.Float64()))
+	d += j
+	l.lock.Lock()
+	defer l.lock.Unlock()
+	cutoff := time.Now().Add(d)
+	var macs []string
+	for idx, item := range l.Items {
+		if idx < maxCount {
+			if item.When.After(cutoff) {
+				macs = append(macs, item.MAC)
+			}
+		}
+	}
+	return macs
+}
+
+func randomJitter(jitter time.Duration) time.Duration {
+	return time.Duration(float64(jitter) * (0.5 - 0.5*rand.Float64()))
+}
+
 func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	l.RemoveOldItems()
 	l.SortNewestFirst()
@@ -169,16 +195,15 @@ func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	/*
 		for idx, item := range l.Items {
-			if idx < 500 && item.BootTime.Before(item.When.Add(time.Hour)) &&
+			if idx < maxCount && item.BootTime.Before(item.When.Add(time.Hour)) &&
 				item.BootTime.After(item.When.Add(-1*time.Hour)) {
 				w.Header().Add("X-BootTimeRoot", item.BootTime.String())
 			}
 		}
 	*/
-	for idx, item := range l.Items {
-		if idx < 500 {
-			fmt.Fprintf(w, "%s\n", item.MAC)
-		}
+	got := l.GiveMeBoxesISawBefore(frequency)
+	for _, mac := range got {
+		fmt.Fprintf(w, "%s\n", mac)
 	}
 	l.lock.Unlock()
 }
