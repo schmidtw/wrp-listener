@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -95,8 +96,9 @@ func (el *eventListener) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type ListItem struct {
-	MAC  string
-	When time.Time
+	MAC      string
+	BootTime time.Time
+	When     time.Time
 }
 
 type List struct {
@@ -125,12 +127,35 @@ func (l *List) SortNewestFirst() {
 	})
 }
 
+func (l *List) GetAverageBootTime() time.Duration {
+	if len(l.Items) == 0 {
+		return 0
+	}
+
+	var total time.Duration
+	count := 0
+	for _, item := range l.Items {
+		if !item.BootTime.IsZero() {
+			total += item.BootTime.Sub(item.When)
+			count++
+		}
+	}
+
+	if count == 0 {
+		return 0
+	}
+
+	return total / time.Duration(count)
+}
+
 func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	l.RemoveOldItems()
 	l.SortNewestFirst()
 	w.Header().Set("Content-Type", "application/text")
 
 	l.lock.Lock()
+
+	w.Header().Set("BootTimeLatency", l.GetAverageBootTime().String())
 
 	for idx, item := range l.Items {
 		if idx < 50 {
@@ -271,9 +296,18 @@ func main() {
 			now := time.Now()
 
 			list.lock.Lock()
+			bt := strings.TrimSpace(event.Metadata["boot-time"])
+			bootedAt := time.Time{}
+			if bt != "" {
+				unixTime, err := strconv.ParseInt(bt, 10, 64)
+				if err == nil {
+					bootedAt = time.Unix(unixTime, 0)
+				}
+			}
 			list.Items = append(list.Items, ListItem{
-				MAC:  payload["id"].(string),
-				When: now,
+				MAC:      payload["id"].(string),
+				BootTime: bootedAt,
+				When:     now,
 			})
 			list.lock.Unlock()
 		}
