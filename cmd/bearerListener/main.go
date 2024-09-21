@@ -160,6 +160,7 @@ func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for idx, item := range l.Items {
 		if idx < 50 {
 			fmt.Fprintf(w, "%s\n", item.MAC)
+			w.Header().Set("BootTimeRoot", item.BootTime.String())
 		}
 	}
 	l.lock.Unlock()
