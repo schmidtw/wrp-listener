@@ -228,6 +228,7 @@ func main() {
 					good = true
 				} else {
 					fmt.Println("Bad firmware:", event.Metadata["fw-name"])
+					fmt.Println(event.Metadata)
 				}
 
 			}
