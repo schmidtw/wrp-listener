@@ -225,6 +225,7 @@ func main() {
 			good := false
 			for _, fw := range goodFirmware {
 				if strings.ToLower(event.Metadata["/fw-name"]) == strings.ToLower(fw) {
+					fmt.Println("Good firmware:", event.Metadata["/fw-name"])
 					good = true
 				}
 
@@ -232,8 +233,8 @@ func main() {
 			if good {
 				continue
 			}
+
 			fmt.Println("Bad firmware:", event.Metadata["/fw-name"])
-			fmt.Println(event.Metadata)
 
 			bt := strings.TrimSpace(event.Metadata["boot-time"])
 			if bt != "" {
