@@ -233,14 +233,16 @@ func main() {
 			}
 
 			bt := event.Metadata["boot-time"]
-			unixTime, err := strconv.ParseInt(bt, 10, 64)
-			if err != nil {
-				fmt.Println("Failed to parse boot-time:", err)
-				continue
-			}
-			bootTime := time.Unix(unixTime, 0)
-			if time.Since(bootTime) > 15*time.Minute {
-				continue
+			if bt != "" {
+				unixTime, err := strconv.ParseInt(bt, 10, 64)
+				if err != nil {
+					fmt.Println("Failed to parse boot-time:", err)
+					continue
+				}
+				bootTime := time.Unix(unixTime, 0)
+				if time.Since(bootTime) > 15*time.Minute {
+					continue
+				}
 			}
 
 			var payload map[string]any
