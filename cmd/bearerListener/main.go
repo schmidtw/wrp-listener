@@ -42,6 +42,13 @@ type targetCPE struct {
 
 var goodFirmware = []targetCPE{
 	// Foxtel
+	{
+		Firmware: "SKTL11MEIFT_029.517.00.7.4p33s1_PROD_sdy",
+		Hardware: "SKTL11MEIFT",
+	}, {
+		Firmware: "SKXI11ADSSOFT_029.517.00.7.4p33s1_PROD_sdy",
+		Hardware: "SKXI11ADSSOFT",
+	},
 
 	// EU
 	{
