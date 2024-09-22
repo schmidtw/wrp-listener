@@ -228,9 +228,10 @@ func (l *List) OffendersHTTP(w http.ResponseWriter, r *http.Request) {
 		return offeners[l.Items[i].MAC] > offeners[l.Items[j].MAC]
 	})
 
-	//for mac, count := range offeners {
-	//w.Header().Add("X-Offender", fmt.Sprintf("%s: %d", mac, count))
-	//}
+	for mac, count := range offeners {
+		//w.Header().Add("X-Offender", fmt.Sprintf("%s: %d", mac, count))
+		fmt.Printf("%s: %d\n", mac, count)
+	}
 
 	for mac := range offeners {
 		fmt.Fprintf(w, "%s\n", mac)
