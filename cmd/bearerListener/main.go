@@ -27,12 +27,25 @@ import (
 
 const lifetime = 15 * time.Minute
 const cutoff = 15 * time.Second
-const maxCount = 10
+const maxCount = 300
 const frequency = 3*time.Minute + 20*time.Second
 const jitter = 10 * time.Second
 
 const targetBox = "mac:b04530ce10ed"
 const parameter = "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.ThunderSecurity.Enable"
+
+var targets = []string{
+	"mac:b04530ce10ed",
+	"mac:04b86a45fd2e",
+	"mac:d452ee4a07b8",
+	"mac:b04530909085",
+	"mac:b0453090ab61",
+	"mac:d452eefff5c8",
+	"mac:d452eeb11f8b",
+	"mac:b045309084b5",
+	"mac:b04530e55c24",
+	"mac:b04530ccfa38",
+}
 
 type eventListener struct {
 	l   *listener.Listener
