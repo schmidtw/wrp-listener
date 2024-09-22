@@ -592,13 +592,13 @@ func muckWithTr181(mac string) {
 	}
 
 	fmt.Println("Mucking with TR-181 for", mac)
-	stopMucking = true
 
 	rep, err := getParam(satToken, mac, tr181ParameterGET)
 	if err != nil {
-		fmt.Println("Failed to get parameter:", err)
 		return
 	}
 
+	stopMucking = true
+	fmt.Println("Got an RFC parameter:", err)
 	pp.Println(rep)
 }
