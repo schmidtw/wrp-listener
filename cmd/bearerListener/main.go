@@ -649,7 +649,9 @@ func getParam(creds, mac, fields string) (Response, error) {
 }
 
 func setParam(creds, mac string, set Parameters) error {
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 150 * time.Second,
+	}
 
 	u, err := url.ParseRequestURI(os.Getenv("WEBHOOK_URL"))
 	if err != nil {
@@ -675,7 +677,11 @@ func setParam(creds, mac string, set Parameters) error {
 	req.Header.Set("Authorization", "Bearer "+creds)
 	req.Header.Set("Content-Type", "application/json")
 
+	fmt.Println("PATCH URL:", u.String())
+
 	resp, err := client.Do(req)
+
+	fmt.Println("====== I  got something  ==================")
 	if err != nil {
 		return err
 	}
