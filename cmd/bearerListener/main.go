@@ -10,6 +10,7 @@ import (
 	"io"
 	"math/rand/v2"
 	"net/http"
+	"net/url"
 	"os"
 	"sort"
 	"strconv"
@@ -17,6 +18,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/k0kubun/pp/v3"
 	"github.com/xmidt-org/webhook-schema"
 	"github.com/xmidt-org/wrp-go/v3"
 	listener "github.com/xmidt-org/wrp-listener"
@@ -31,8 +33,7 @@ const maxCount = 300
 const frequency = 3*time.Minute + 20*time.Second
 const jitter = 10 * time.Second
 
-const targetBox = "mac:b04530ce10ed"
-const parameter = "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.ThunderSecurity.Enable"
+const tr181ParameterGET = "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.ThunderSecurity.Enable"
 
 var targetCPEs = []string{}
 
@@ -270,6 +271,8 @@ func simpleHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello, world!"))
 }
 
+var satToken string
+
 func main() {
 	receiverURL := strings.TrimSpace(os.Getenv("WEBHOOK_TARGET"))
 	webhookURL := strings.TrimSpace(os.Getenv("WEBHOOK_URL"))
@@ -296,6 +299,12 @@ func main() {
 
 	for i := range sharedSecrets {
 		sharedSecrets[i] = strings.TrimSpace(sharedSecrets[i])
+	}
+
+	var err error
+	satToken, err = getSat()
+	if err != nil {
+		panic(err)
 	}
 
 	// Create the listener.
@@ -500,6 +509,65 @@ func getSat() (string, error) {
 	return satResponse.ServiceAccessToken, nil
 }
 
+type Parameter struct {
+	Name     string `json:"name"`
+	Value    string `json:"value"`
+	DataType int    `json:"dataType"`
+}
+
+type Parameters struct {
+	Parameters     []Parameter `json:"parameters"`
+	DataType       int         `json:"dataType"`
+	ParameterCount int         `json:"parameterCount"`
+	Message        string      `json:"message"`
+}
+
+type Response struct {
+	Parameters []Parameters `json:"parameters"`
+	StatusCode int          `json:"statusCode"`
+}
+
+func getParam(apacsat, mac, fields string) (Response, error) {
+	var result Response
+	client := &http.Client{}
+
+	u, err := url.ParseRequestURI(os.Getenv("WEBHOOK_URL"))
+	if err != nil {
+		return Response{}, err
+	}
+
+	u.Query().Add("names", url.QueryEscape(fields))
+	u.Path = "/api/v3/device/" + url.PathEscape(mac) + "/config"
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return Response{}, err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+apacsat)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return Response{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return Response{}, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return Response{}, err
+	}
+
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return result, err
+	}
+
+	return result, nil
+}
+
 var stopMucking bool
 
 func muckWithTr181(mac string) {
@@ -520,4 +588,12 @@ func muckWithTr181(mac string) {
 
 	fmt.Println("Mucking with TR-181 for", mac)
 	stopMucking = true
+
+	rep, err := getParam(satToken, mac, tr181ParameterGET)
+	if err != nil {
+		fmt.Println("Failed to get parameter:", err)
+		return
+	}
+
+	pp.Println(rep)
 }
