@@ -188,6 +188,10 @@ func (l *List) GiveMeBoxesISawBefore(d time.Duration) []string {
 }
 
 func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	l.OffendersHTTP(w, r)
+}
+
+func (l *List) RecentServeHTTP(w http.ResponseWriter, r *http.Request) {
 	l.RemoveOldItems()
 	l.SortNewestFirst()
 	w.Header().Set("Content-Type", "application/text")
@@ -204,6 +208,29 @@ func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	*/
 	got := l.GiveMeBoxesISawBefore(frequency)
 	for _, mac := range got {
+		fmt.Fprintf(w, "%s\n", mac)
+	}
+}
+
+func (l *List) OffendersHTTP(w http.ResponseWriter, r *http.Request) {
+	l.SortNewestFirst()
+	w.Header().Set("Content-Type", "application/text")
+
+	offeners := make(map[string]int)
+	for _, item := range l.Items {
+		offeners[item.MAC]++
+	}
+
+	// sort the offendders by count
+	sort.Slice(l.Items, func(i, j int) bool {
+		return offeners[l.Items[i].MAC] > offeners[l.Items[j].MAC]
+	})
+
+	for mac, count := range offeners {
+		w.Header().Add("X-Offender", fmt.Sprintf("%s: %d", mac, count))
+	}
+
+	for mac := range offeners {
 		fmt.Fprintf(w, "%s\n", mac)
 	}
 }
