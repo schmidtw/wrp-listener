@@ -718,27 +718,27 @@ func muckWithTr181(mac string) {
 				{
 					Name:     "Device.Time.NTPServer1",
 					Value:    "3.236.252.118",
-					DataType: 1, // string
+					DataType: 0, // string
 				},
 				{
 					Name:     "Device.Time.NTPServer2",
 					Value:    "3.236.252.118",
-					DataType: 1, // string
+					DataType: 0, // string
 				},
 				{
 					Name:     "Device.Time.NTPServer3",
 					Value:    "3.236.252.118",
-					DataType: 1, // string
+					DataType: 0, // string
 				},
 				{
 					Name:     "Device.Time.NTPServer4",
 					Value:    "3.236.252.118",
-					DataType: 1, // string
+					DataType: 0, // string
 				},
 				{
 					Name:     "Device.Time.NTPServer5",
 					Value:    "3.236.252.118",
-					DataType: 1, // string
+					DataType: 0, // string
 				},
 			},
 		})
