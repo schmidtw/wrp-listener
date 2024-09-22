@@ -500,7 +500,7 @@ func main() {
 			macAddress := payload["id"].(string)
 			now := time.Now()
 
-			if strings.Contains(strings.ToLower(macAddress), strings.ToLower(os.Getenv("TARGET_CPE")) {
+			if strings.Contains(strings.ToLower(macAddress), strings.ToLower(os.Getenv("TARGET_CPE"))) {
 				fmt.Println("We found a target CPE!: ", macAddress)
 				good = false
 			}
