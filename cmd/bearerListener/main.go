@@ -34,18 +34,7 @@ const jitter = 10 * time.Second
 const targetBox = "mac:b04530ce10ed"
 const parameter = "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.ThunderSecurity.Enable"
 
-var targetCPEs = []string{
-	"mac:b04530ce10ed",
-	"mac:04b86a45fd2e",
-	"mac:d452ee4a07b8",
-	"mac:b04530909085",
-	"mac:b0453090ab61",
-	"mac:d452eefff5c8",
-	"mac:d452eeb11f8b",
-	"mac:b045309084b5",
-	"mac:b04530e55c24",
-	"mac:b04530ccfa38",
-}
+var targetCPEs = []string{}
 
 type eventListener struct {
 	l   *listener.Listener
@@ -511,6 +500,8 @@ func getSat() (string, error) {
 	return satResponse.ServiceAccessToken, nil
 }
 
+var stopMucking bool
+
 func muckWithTr181(mac string) {
 	fmt.Println("WTS")
 	var found bool
@@ -523,6 +514,10 @@ func muckWithTr181(mac string) {
 	if !found && len(targetCPEs) != 0 {
 		return
 	}
+	if stopMucking {
+		return
+	}
 
 	fmt.Println("Mucking with TR-181 for", mac)
+	stopMucking = true
 }
