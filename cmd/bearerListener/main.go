@@ -707,7 +707,7 @@ func muckWithTr181(mac string) {
 	fmt.Println("------------------")
 
 	for {
-		resp, code, err := getParam(satToken, mac, tr181ParameterGET)
+		resp, code, err := getParam(satToken, mac, "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.newNTP.Enable,Device.Time.NTPServer1,Device.Time.NTPServer2,Device.Time.NTPServer3,Device.Time.NTPServer4,Device.Time.NTPServer5") //tr181ParameterGET)
 		if err != nil {
 			fmt.Println("Failed to get TR-181 parameter:", err)
 		} else {
