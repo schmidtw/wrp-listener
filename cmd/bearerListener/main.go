@@ -26,7 +26,8 @@ import (
 // Start
 
 const lifetime = 15 * time.Minute
-const cutoff = 15 * time.Second
+
+// const cutoff = 15 * time.Second
 const maxCount = 300
 const frequency = 3*time.Minute + 20*time.Second
 const jitter = 10 * time.Second
@@ -154,10 +155,10 @@ func (l *List) RemoveOldItems() {
 func (l *List) removeOldItems(d time.Duration) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	cutoff := time.Now().Add(d)
+	until := time.Now().Add(d)
 	var filteredItems []ListItem
 	for _, item := range l.Items {
-		if item.When.After(cutoff) {
+		if item.When.After(until) {
 			filteredItems = append(filteredItems, item)
 		}
 	}
@@ -200,13 +201,13 @@ func (l *List) GiveMeBoxesISawBefore(d time.Duration) []string {
 	d += j
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	cutoff := time.Now().Add(-1 * lifetime)
+	until := time.Now().Add(-1 * lifetime)
 	var macs []string
 	now := time.Now()
 	for idx, item := range l.Items {
 		if idx < maxCount {
-			if item.When.After(cutoff) {
-				//|| (item.When.After(cutoff) && item.When.Before(cutoff.Add(time.Second*20))) {
+			if item.When.After(until) {
+				//|| (item.When.After(until) && item.When.Before(until.Add(time.Second*20))) {
 				macs = append(macs, item.MAC)
 				fmt.Printf("%s: %s\n", item.MAC, item.When.Sub(now))
 			}
@@ -266,11 +267,11 @@ func (l *List) OffendersHTTP(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// Output the sorted offenders
-	//fmt.Println("--------------------")
-	//fmt.Printf("Offenders:\n")
+	fmt.Println("--------------------")
+	fmt.Printf("Offenders:\n")
 	for idx, kv := range sortedOffenders {
 		if idx < maxCount {
-			//fmt.Printf("%s: %d\n", kv.Key, kv.Value)
+			fmt.Printf("%s: %d\n", kv.Key, kv.Value)
 			fmt.Fprintf(w, "%s\n", kv.Key)
 		}
 	}
