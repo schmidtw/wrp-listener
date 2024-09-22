@@ -688,12 +688,10 @@ func setParam(creds, mac string, set Parameters) error {
 	return nil
 }
 
-var stopMucking bool
-
 func muckWithTr181(mac string) {
 	target := strings.ToLower(os.Getenv("TARGET_CPE"))
 
-	if !strings.Contains(strings.ToLower(mac), target) || stopMucking {
+	if !strings.Contains(strings.ToLower(mac), target) {
 		return
 	}
 
@@ -747,6 +745,5 @@ func muckWithTr181(mac string) {
 		return
 	}
 
-	stopMucking = true
 	fmt.Printf("\n---Results parameter: %s\n", err)
 }
