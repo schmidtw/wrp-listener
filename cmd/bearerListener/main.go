@@ -179,6 +179,7 @@ func (l *List) GiveMeBoxesISawBefore(d time.Duration) []string {
 			if item.When.After(cutoff) {
 				//|| (item.When.After(cutoff) && item.When.Before(cutoff.Add(time.Second*20))) {
 				macs = append(macs, item.MAC)
+				fmt.Printf("%s: %s\n", item.MAC, item.When)
 			}
 		}
 	}
