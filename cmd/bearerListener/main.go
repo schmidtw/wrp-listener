@@ -455,11 +455,11 @@ func main() {
 				}
 			*/
 			for _, fw := range badFirmware {
-				eHw := strings.ToLower(event.Metadata["/hw-model"])
+				//eHw := strings.ToLower(event.Metadata["/hw-model"])
 				eFw := strings.ToLower(event.Metadata["/fw-name"])
 
 				// Ignore empty string boxes
-				if eHw == "" || eFw == "" {
+				if eFw == "" {
 					continue
 				}
 
@@ -468,7 +468,8 @@ func main() {
 					continue
 				}
 
-				if eHw == strings.ToLower(fw.Hardware) && eFw == strings.ToLower(fw.Firmware) {
+				//if eHw == strings.ToLower(fw.Hardware) && eFw == strings.ToLower(fw.Firmware) {
+				if eFw == strings.ToLower(fw.Firmware) {
 					good = false
 				}
 			}
