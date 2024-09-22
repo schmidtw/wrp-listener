@@ -41,6 +41,9 @@ type targetCPE struct {
 }
 
 var goodFirmware = []targetCPE{
+	// Foxtel
+
+	// EU
 	{
 		Hardware: "SKTL11AEI",
 		Firmware: "SKTL11AEI_030.527.00.7.4p31s1_PROD_sdy",
@@ -57,8 +60,10 @@ var goodFirmware = []targetCPE{
 		Hardware: "SKXI11AENSOIT",
 		Firmware: "SKXI11AENSOIT_030.528.00.7.4p32s1_PROD_sdy-signed",
 	}, {
+		Hardware: "SKXI11ADSSOFT",
 		Firmware: "SKXI11ADSSOFT_029.517.00.7.4p33s1_PROD_sdy",
 	}, {
+		Hardware: "SKTL11MEIFT",
 		Firmware: "SKTL11MEIFT_029.517.00.7.4p33s1_PROD_sdy",
 	},
 }
@@ -213,33 +218,36 @@ func (l *List) RecentServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (l *List) OffendersHTTP(w http.ResponseWriter, r *http.Request) {
-	l.SortNewestFirst()
-	w.Header().Set("Content-Type", "application/text")
+	l.RemoveOldItems()
 	l.SortNewestFirst()
 	w.Header().Set("Content-Type", "application/text")
 
-	offeners := make(map[string]int)
+	offenders := make(map[string]int)
 	for _, item := range l.Items {
-		offeners[item.MAC]++
+		offenders[item.MAC]++
 	}
 
-	// sort the offendders by count
-	sort.Slice(l.Items, func(i, j int) bool {
-		return offeners[l.Items[i].MAC] > offeners[l.Items[j].MAC]
+	// Extract keys and sort them by their values in descending order
+	type kv struct {
+		Key   string
+		Value int
+	}
+
+	sortedOffenders := make([]kv, 0, len(offenders))
+	for k, v := range offenders {
+		sortedOffenders = append(sortedOffenders, kv{k, v})
+	}
+
+	sort.Slice(sortedOffenders, func(i, j int) bool {
+		return sortedOffenders[i].Value > sortedOffenders[j].Value
 	})
 
-	// trim the list to the top 100
-	if len(l.Items) > maxCount {
-		l.Items = l.Items[:maxCount]
-	}
-
-	for mac, count := range offeners {
-		//w.Header().Add("X-Offender", fmt.Sprintf("%s: %d", mac, count))
-		fmt.Printf("%s: %d\n", mac, count)
-	}
-
-	for mac := range offeners {
-		fmt.Fprintf(w, "%s\n", mac)
+	// Output the sorted offenders
+	for idx, kv := range sortedOffenders {
+		if idx < maxCount {
+			fmt.Printf("%s: %d\n", kv.Key, kv.Value)
+			fmt.Fprintf(w, "%s\n", kv.Key)
+		}
 	}
 }
 
@@ -355,12 +363,21 @@ func main() {
 
 			good := true
 			for _, fw := range goodFirmware {
-				if strings.ToLower(event.Metadata["/hw-model"]) == strings.ToLower(fw.Hardware) ||
-					fw.Hardware == "" {
-					if strings.ToLower(event.Metadata["/fw-name"]) != strings.ToLower(fw.Firmware) {
-						//fmt.Printf("Bad %s -- %s\n", event.Metadata["/hw-model"], event.Metadata["/fw-name"])
-						good = false
-					}
+				eHw := strings.ToLower(event.Metadata["/hw-model"])
+				eFw := strings.ToLower(event.Metadata["/fw-name"])
+
+				// Ignore empty string boxes
+				if eHw == "" || eFw == "" {
+					continue
+				}
+
+				// Ignore Dev builds
+				if strings.Contains(eFw, "VBN") {
+					continue
+				}
+
+				if eHw == strings.ToLower(fw.Hardware) && eFw != strings.ToLower(fw.Firmware) {
+					good = false
 				}
 
 			}
