@@ -48,7 +48,6 @@ type targetCPE struct {
 }
 
 var goodFirmware = []targetCPE{
-	// Foxtel
 	{
 		Firmware: "SKTL11MEIFT_029.517.00.7.4p33s1_PROD_sdy",
 		Hardware: "SKTL11MEIFT",
@@ -57,7 +56,6 @@ var goodFirmware = []targetCPE{
 		Hardware: "SKXI11ADSSOFT",
 	},
 
-	// EU
 	{
 		Hardware: "SKXI11ADS",
 		Firmware: "SKXI11ADS_030.528.00.7.4p32s1_PROD_sdy",
@@ -78,6 +76,57 @@ var goodFirmware = []targetCPE{
 	}, {
 		Hardware: "SKXI11AENSOIT",
 		Firmware: "SKXI11AENSOIT_030.528.00.7.4p32s1_PROD_sdy-signed",
+	},
+}
+
+var badFirmware = []targetCPE{
+	{
+		Hardware: "SKXI11ADS",
+		Firmware: "SKXI11ADS_028.516.00.6.11p28s1_PROD_sdy",
+	}, {
+		Hardware: "SKXI11ADS",
+		Firmware: "SKXI11ADS_030.525.00.7.4p30s1_PROD_sdy",
+	}, {
+		Hardware: "SKXI11ADS",
+		Firmware: "SKXI11ADS_030.525.00.7.4p30s1_PROD_sdy",
+	}, {
+		Hardware: "SKXI11ADS",
+		Firmware: "SKXI11ADS_030.525.00.7.4p30s1_PROD_sdy",
+	},
+
+	{
+		Hardware: "SKXI11AEISODE",
+		Firmware: "SKTL11AEI_030.524.00.7.4p27s1_PROD_sdy",
+	}, {
+		Hardware: "SKXI11AEISODE",
+		Firmware: "SKTL11AEI_030.520.00.7.4p25s2_PROD_sdy",
+	}, {
+		Hardware: "SKXI11AEISODE",
+		Firmware: "SKTL11AEI_028.516.00.6.11p28s1_PROD_sdy",
+	},
+
+	{
+		Hardware: "SKXI11AENSOIT",
+		Firmware: "SKXI11AENSOIT_028.520.00.6.11p31s1_PROD_sdy",
+	}, {
+		Hardware: "SKXI11AENSOIT",
+		Firmware: "SKXI11AENSOIT_030.526.00.7.4p30s2_PROD_sdy",
+	},
+
+	{
+		Hardware: "SKTL11MEIIT",
+		Firmware: "SKTL11MEIIT_028.520.00.6.11p31s1_PROD_sdy",
+	}, {
+		Hardware: "SKTL11MEIIT",
+		Firmware: "SKTL11MEIIT_030.519.00.7.4p25s1_PROD_sdy",
+	},
+
+	{
+		Hardware: "SKTL11MEIFT",
+		Firmware: "SKTL11MEIFT_029.506.00.7.4p6s1_PROD_sdy",
+	}, {
+		Hardware: "SKTL11MEIFT",
+		Firmware: "SKTL11MEIFT_029.506.01.7.4p29s1_PROD_sdy",
 	},
 }
 
@@ -385,7 +434,27 @@ func main() {
 			event := <-el.out
 
 			good := true
-			for _, fw := range goodFirmware {
+			/*
+				for _, fw := range goodFirmware {
+					eHw := strings.ToLower(event.Metadata["/hw-model"])
+					eFw := strings.ToLower(event.Metadata["/fw-name"])
+
+					// Ignore empty string boxes
+					if eHw == "" || eFw == "" {
+						continue
+					}
+
+					// Ignore Dev builds
+					if strings.Contains(eFw, "VBN") {
+						continue
+					}
+
+					if eHw == strings.ToLower(fw.Hardware) && eFw != strings.ToLower(fw.Firmware) {
+						good = false
+					}
+				}
+			*/
+			for _, fw := range badFirmware {
 				eHw := strings.ToLower(event.Metadata["/hw-model"])
 				eFw := strings.ToLower(event.Metadata["/fw-name"])
 
@@ -399,11 +468,11 @@ func main() {
 					continue
 				}
 
-				if eHw == strings.ToLower(fw.Hardware) && eFw != strings.ToLower(fw.Firmware) {
+				if eHw == strings.ToLower(fw.Hardware) && eFw == strings.ToLower(fw.Firmware) {
 					good = false
 				}
-
 			}
+
 			//fmt.Println("Bad firmware:", event.Metadata["/fw-name"])
 
 			/*
