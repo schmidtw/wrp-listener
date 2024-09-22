@@ -712,7 +712,6 @@ func muckWithTr181(mac string) {
 		resp, code, err := getParam(satToken, mac, tr181ParameterGET)
 		if err != nil {
 			fmt.Println("Failed to get TR-181 parameter:", err)
-			return
 		} else {
 			pp.Println(resp)
 		}
