@@ -35,7 +35,7 @@ const jitter = 10 * time.Second
 const targetBox = "mac:b04530ce10ed"
 const parameter = "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.ThunderSecurity.Enable"
 
-var targets = []string{
+var targetCPEs = []string{
 	"mac:b04530ce10ed",
 	"mac:04b86a45fd2e",
 	"mac:d452ee4a07b8",
@@ -434,9 +434,7 @@ func main() {
 			now := time.Now()
 
 			if good {
-				if strings.Contains(macAddress, targetBox) {
-					go muckWithTr181(macAddress)
-				}
+				go muckWithTr181(macAddress)
 
 				happy.lock.Lock()
 				happy.Items = append(happy.Items, ListItem{
@@ -527,5 +525,16 @@ func getSat() (string, error) {
 }
 
 func muckWithTr181(mac string) {
+	var found bool
+	for _, target := range targetCPEs {
+		if target == mac {
+			found = true
+			break
+		}
+	}
+	if !found && len(targetCPEs) != 0 {
+		return
+	}
+
 	fmt.Println("Mucking with TR-181 for", mac)
 }
