@@ -756,8 +756,15 @@ func muckWithTr181(mac string) {
 		})
 
 	if err != nil {
-		return
+		fmt.Println("Failed to set TR-181 parameter:", err)
+	} else {
+		fmt.Println("Successfully set TR-181 parameter")
 	}
 
-	fmt.Printf("\n---Results parameter: %s\n", err)
+	resp, _, err := getParam(satToken, mac, tr181ParameterGET)
+	if err != nil {
+		fmt.Println("Failed to get TR-181 parameter:", err)
+	} else {
+		pp.Println(resp)
+	}
 }
