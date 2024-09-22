@@ -688,6 +688,7 @@ func muckWithTr181(mac string) {
 	target := strings.ToLower(os.Getenv("TARGET_CPE"))
 
 	if target != strings.ToLower(mac) || stopMucking {
+		fmt.Printf("Got: %s, expected: %s\n", mac, target)
 		return
 	}
 
