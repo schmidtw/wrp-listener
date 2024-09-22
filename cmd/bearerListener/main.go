@@ -30,6 +30,9 @@ const maxCount = 10
 const frequency = 3*time.Minute + 20*time.Second
 const jitter = 10 * time.Second
 
+const targetBox = "mac:b04530ce10ed"
+const parameter = "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.ThunderSecurity.Enable"
+
 type eventListener struct {
 	l   *listener.Listener
 	out chan wrp.Message
@@ -52,12 +55,17 @@ var goodFirmware = []targetCPE{
 
 	// EU
 	{
-		Hardware: "SKTL11AEI",
-		Firmware: "SKTL11AEI_030.527.00.7.4p31s1_PROD_sdy",
-	}, {
 		Hardware: "SKXI11ADS",
 		Firmware: "SKXI11ADS_030.528.00.7.4p32s1_PROD_sdy",
 	}, {
+		Hardware: "SKTL11AEI",
+		Firmware: "SKTL11AEI_030.527.00.7.4p31s1_PROD_sdy",
+	}, {
+		Hardware: "SKXI11AENSOIT",
+		Firmware: "SKXI11AENSOIT_030.528.00.7.4p32s1_PROD_sdy",
+	},
+
+	{
 		Hardware: "SKXI11AEISODE",
 		Firmware: "SKXI11AEISODE_031.410.01.7.4p32s2_PROD_sdy",
 	}, {
@@ -66,12 +74,6 @@ var goodFirmware = []targetCPE{
 	}, {
 		Hardware: "SKXI11AENSOIT",
 		Firmware: "SKXI11AENSOIT_030.528.00.7.4p32s1_PROD_sdy-signed",
-	}, {
-		Hardware: "SKXI11ADSSOFT",
-		Firmware: "SKXI11ADSSOFT_029.517.00.7.4p33s1_PROD_sdy",
-	}, {
-		Hardware: "SKTL11MEIFT",
-		Firmware: "SKTL11MEIFT_029.517.00.7.4p33s1_PROD_sdy",
 	},
 }
 
@@ -413,9 +415,14 @@ func main() {
 				continue
 			}
 
+			macAddress := payload["id"].(string)
 			now := time.Now()
 
 			if good {
+				if strings.Contains(macAddress, targetBox) {
+					go muckWithTr181(macAddress)
+				}
+
 				happy.lock.Lock()
 				happy.Items = append(happy.Items, ListItem{
 					MAC:  payload["id"].(string),
@@ -490,4 +497,8 @@ func getSat() (string, error) {
 	}
 
 	return satResponse.ServiceAccessToken, nil
+}
+
+func muckWithTr181(mac string) {
+	fmt.Println("Mucking with TR-181 for", mac)
 }
