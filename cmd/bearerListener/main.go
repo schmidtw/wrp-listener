@@ -687,7 +687,7 @@ var stopMucking bool
 func muckWithTr181(mac string) {
 	target := strings.ToLower(os.Getenv("TARGET_CPE"))
 
-	if strings.Contains(strings.ToLower(mac), target) || stopMucking {
+	if !strings.Contains(strings.ToLower(mac), target) || stopMucking {
 		fmt.Printf("Got: '%s', expected: '%s'\n", mac, target)
 		return
 	}
