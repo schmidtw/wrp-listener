@@ -4,6 +4,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -18,7 +19,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/k0kubun/pp/v3"
 	"github.com/xmidt-org/webhook-schema"
 	"github.com/xmidt-org/wrp-go/v3"
 	listener "github.com/xmidt-org/wrp-listener"
@@ -518,8 +518,8 @@ type Parameter struct {
 type Parameters struct {
 	Parameters     []Parameter `json:"parameters"`
 	DataType       int         `json:"dataType"`
-	ParameterCount int         `json:"parameterCount"`
-	Message        string      `json:"message"`
+	ParameterCount int         `json:"parameterCount,omitempty"`
+	Message        string      `json:"message,omitempty"`
 }
 
 type Response struct {
@@ -573,32 +573,98 @@ func getParam(creds, mac, fields string) (Response, error) {
 	return result, nil
 }
 
+func setParam(creds, mac string, set Parameters) error {
+	client := &http.Client{}
+
+	u, err := url.ParseRequestURI(os.Getenv("WEBHOOK_URL"))
+	if err != nil {
+		return err
+	}
+
+	u.Path = "/api/v3/device/" + url.PathEscape(mac) + "/config"
+
+	// Marshal the Parameters struct into JSON
+	jsonData, err := json.Marshal(set)
+	if err != nil {
+		return err
+	}
+
+	// Create a bytes.Reader from the JSON byte slice
+	bodyReader := bytes.NewReader(jsonData)
+
+	req, err := http.NewRequest("POST", u.String(), bodyReader)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+creds)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	return nil
+}
+
 var stopMucking bool
 
 func muckWithTr181(mac string) {
-	fmt.Print(".")
-	var found bool
-	for _, target := range targetCPEs {
-		if target == mac {
-			found = true
-			break
-		}
-	}
-	if !found && len(targetCPEs) != 0 {
-		return
-	}
-	if stopMucking {
+	target := strings.ToLower(os.Getenv("TARGET_CPE"))
+
+	if target != strings.ToLower(mac) || stopMucking {
 		return
 	}
 
 	fmt.Println("Mucking with TR-181 for", mac)
 
-	rep, err := getParam(satToken, mac, tr181ParameterGET)
+	err := setParam(satToken, mac,
+		Parameters{
+			Parameters: []Parameter{
+				{
+					Name:     "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.newNTP.Enable",
+					Value:    "true",
+					DataType: 3, // boolean
+				},
+				{
+					Name:     "Device.Time.NTPServer1",
+					Value:    "invalid.example.com",
+					DataType: 1, // string
+				},
+				{
+					Name:     "Device.Time.NTPServer2",
+					Value:    "invalid.example.com",
+					DataType: 1, // string
+				},
+				{
+					Name:     "Device.Time.NTPServer3",
+					Value:    "invalid.example.com",
+					DataType: 1, // string
+				},
+				{
+					Name:     "Device.Time.NTPServer4",
+					Value:    "invalid.example.com",
+					DataType: 1, // string
+				},
+				{
+					Name:     "Device.Time.NTPServer5",
+					Value:    "invalid.example.com",
+					DataType: 1, // string
+				},
+			},
+			ParameterCount: 1,
+		})
+
 	if err != nil {
 		return
 	}
 
 	stopMucking = true
-	fmt.Println("Got an RFC parameter:", err)
-	pp.Println(rep)
+	fmt.Printf("\n---Results parameter: %s\n", err)
 }
