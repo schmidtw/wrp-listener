@@ -19,6 +19,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/k0kubun/pp/v3"
 	"github.com/xmidt-org/webhook-schema"
 	"github.com/xmidt-org/wrp-go/v3"
 	listener "github.com/xmidt-org/wrp-listener"
@@ -699,7 +700,14 @@ func muckWithTr181(mac string) {
 	fmt.Println("Mucking with TR-181 for", mac)
 	fmt.Println("------------------")
 
-	err := setParam(satToken, mac,
+	resp, err := getParam(satToken, mac, tr181ParameterGET)
+	if err != nil {
+		fmt.Println("Failed to get TR-181 parameter:", err)
+	} else {
+		pp.Println(resp)
+	}
+
+	err = setParam(satToken, mac,
 		Parameters{
 			Parameters: []Parameter{
 				{
@@ -708,33 +716,28 @@ func muckWithTr181(mac string) {
 					DataType: 3, // boolean
 				},
 				{
-					Name:  "Device.Time.NTPServer1",
-					Value: "3.236.252.118",
-					//Value:    "invalid.example.com",
+					Name:     "Device.Time.NTPServer1",
+					Value:    "3.236.252.118",
 					DataType: 1, // string
 				},
 				{
-					Name:  "Device.Time.NTPServer2",
-					Value: "3.236.252.118",
-					//Value:    "invalid.example.com",
+					Name:     "Device.Time.NTPServer2",
+					Value:    "3.236.252.118",
 					DataType: 1, // string
 				},
 				{
-					Name:  "Device.Time.NTPServer3",
-					Value: "3.236.252.118",
-					//Value:    "invalid.example.com",
+					Name:     "Device.Time.NTPServer3",
+					Value:    "3.236.252.118",
 					DataType: 1, // string
 				},
 				{
-					Name:  "Device.Time.NTPServer4",
-					Value: "3.236.252.118",
-					//Value:    "invalid.example.com",
+					Name:     "Device.Time.NTPServer4",
+					Value:    "3.236.252.118",
 					DataType: 1, // string
 				},
 				{
-					Name:  "Device.Time.NTPServer5",
-					Value: "3.236.252.118",
-					//Value:    "invalid.example.com",
+					Name:     "Device.Time.NTPServer5",
+					Value:    "3.236.252.118",
 					DataType: 1, // string
 				},
 			},
