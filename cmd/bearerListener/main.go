@@ -24,7 +24,8 @@ import (
 
 // Start
 
-const cutoff = 5 * time.Second
+const lifetime = 15 * time.Minute
+const cutoff = 15 * time.Second
 const maxCount = 100
 const frequency = 3*time.Minute + 20*time.Second
 const jitter = 10 * time.Second
@@ -119,7 +120,7 @@ type List struct {
 }
 
 func (l *List) RemoveOldItems() {
-	l.removeOldItems(-15 * time.Minute)
+	l.removeOldItems(-1 * lifetime)
 }
 
 func (l *List) removeOldItems(d time.Duration) {
@@ -175,8 +176,8 @@ func (l *List) GiveMeBoxesISawBefore(d time.Duration) []string {
 	var macs []string
 	for idx, item := range l.Items {
 		if idx < maxCount {
-			if item.When.Before(cutoff) ||
-				(item.When.After(cutoff) && item.When.Before(cutoff.Add(time.Second*20))) {
+			if item.When.Before(cutoff) {
+				//|| (item.When.After(cutoff) && item.When.Before(cutoff.Add(time.Second*20))) {
 				macs = append(macs, item.MAC)
 			}
 		}
