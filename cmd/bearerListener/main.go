@@ -172,11 +172,11 @@ func (l *List) GiveMeBoxesISawBefore(d time.Duration) []string {
 	d += j
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	cutoff := time.Now().Add(d)
+	cutoff := time.Now().Add(lifetime)
 	var macs []string
 	for idx, item := range l.Items {
 		if idx < maxCount {
-			if item.When.Before(cutoff) {
+			if item.When.After(cutoff) {
 				//|| (item.When.After(cutoff) && item.When.Before(cutoff.Add(time.Second*20))) {
 				macs = append(macs, item.MAC)
 			}
