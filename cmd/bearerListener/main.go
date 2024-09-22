@@ -699,9 +699,6 @@ func muckWithTr181(mac string) {
 	fmt.Println("Mucking with TR-181 for", mac)
 	fmt.Println("------------------")
 
-	if 1 == 1 {
-		return
-	}
 	/*
 		resp, err := getParam(satToken, mac, tr181ParameterGET)
 		if err != nil {
