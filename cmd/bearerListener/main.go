@@ -228,6 +228,11 @@ func (l *List) OffendersHTTP(w http.ResponseWriter, r *http.Request) {
 		return offeners[l.Items[i].MAC] > offeners[l.Items[j].MAC]
 	})
 
+	// trim the list to the top 100
+	if len(l.Items) > maxCount {
+		l.Items = l.Items[:maxCount]
+	}
+
 	for mac, count := range offeners {
 		//w.Header().Add("X-Offender", fmt.Sprintf("%s: %d", mac, count))
 		fmt.Printf("%s: %d\n", mac, count)
