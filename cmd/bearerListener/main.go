@@ -26,7 +26,7 @@ import (
 
 const lifetime = 15 * time.Minute
 const cutoff = 15 * time.Second
-const maxCount = 100
+const maxCount = 10
 const frequency = 3*time.Minute + 20*time.Second
 const jitter = 10 * time.Second
 
