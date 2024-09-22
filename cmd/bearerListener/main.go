@@ -738,7 +738,6 @@ func muckWithTr181(mac string) {
 					DataType: 1, // string
 				},
 			},
-			ParameterCount: 1,
 		})
 
 	if err != nil {
