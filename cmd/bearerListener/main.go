@@ -465,9 +465,9 @@ func main() {
 	http.Handle("/list", list)
 	http.HandleFunc("/", simpleHandler)
 	http.ListenAndServe(":9999", nil)
-	//if err != nil {
-	//panic(err)
-	//}
+	if err != nil {
+		panic(err)
+	}
 }
 
 type SatResponse struct {
