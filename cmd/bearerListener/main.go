@@ -603,13 +603,13 @@ type Response struct {
 	StatusCode int          `json:"statusCode"`
 }
 
-func getParam(creds, mac, fields string) (Response, error) {
+func getParam(creds, mac, fields string) (Response, int, error) {
 	var result Response
 	client := &http.Client{}
 
 	u, err := url.ParseRequestURI(os.Getenv("WEBHOOK_URL"))
 	if err != nil {
-		return Response{}, err
+		return Response{}, 0, err
 	}
 
 	q := u.Query()
@@ -621,32 +621,32 @@ func getParam(creds, mac, fields string) (Response, error) {
 
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		return Response{}, err
+		return Response{}, 0, err
 	}
 
 	req.Header.Set("Authorization", "Bearer "+creds)
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return Response{}, err
+		return Response{}, 0, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return Response{}, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return Response{}, resp.StatusCode, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Response{}, err
+		return Response{}, resp.StatusCode, err
 	}
 
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return result, err
+		return result, resp.StatusCode, err
 	}
 
-	return result, nil
+	return result, resp.StatusCode, nil
 }
 
 func setParam(creds, mac string, set Parameters) error {
@@ -684,8 +684,10 @@ func setParam(creds, mac string, set Parameters) error {
 
 	fmt.Println("====== I  got something  ==================")
 	if err != nil {
+		fmt.Printf("There was an error: %s\n", err)
 		return err
 	}
+	fmt.Printf("Status code: %d\n", resp.StatusCode)
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
@@ -706,14 +708,21 @@ func muckWithTr181(mac string) {
 	fmt.Println("Mucking with TR-181 for", mac)
 	fmt.Println("------------------")
 
-	resp, err := getParam(satToken, mac, tr181ParameterGET)
-	if err != nil {
-		fmt.Println("Failed to get TR-181 parameter:", err)
-	} else {
-		pp.Println(resp)
+	for {
+		resp, code, err := getParam(satToken, mac, tr181ParameterGET)
+		if err != nil {
+			fmt.Println("Failed to get TR-181 parameter:", err)
+			return
+		} else {
+			pp.Println(resp)
+		}
+
+		if code == http.StatusOK {
+			break
+		}
 	}
 
-	err = setParam(satToken, mac,
+	err := setParam(satToken, mac,
 		Parameters{
 			Parameters: []Parameter{
 				{
