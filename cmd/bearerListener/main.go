@@ -252,11 +252,11 @@ func (l *List) OffendersHTTP(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// Output the sorted offenders
-	fmt.Println("--------------------")
-	fmt.Printf("Offenders:\n")
+	//fmt.Println("--------------------")
+	//fmt.Printf("Offenders:\n")
 	for idx, kv := range sortedOffenders {
 		if idx < maxCount {
-			fmt.Printf("%s: %d\n", kv.Key, kv.Value)
+			//fmt.Printf("%s: %d\n", kv.Key, kv.Value)
 			fmt.Fprintf(w, "%s\n", kv.Key)
 		}
 	}
