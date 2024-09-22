@@ -667,7 +667,7 @@ func setParam(creds, mac string, set Parameters) error {
 	// Create a bytes.Reader from the JSON byte slice
 	bodyReader := bytes.NewReader(jsonData)
 
-	req, err := http.NewRequest("POST", u.String(), bodyReader)
+	req, err := http.NewRequest("PATCH", u.String(), bodyReader)
 	if err != nil {
 		return err
 	}
