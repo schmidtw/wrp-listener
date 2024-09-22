@@ -536,8 +536,10 @@ func getParam(creds, mac, fields string) (Response, error) {
 		return Response{}, err
 	}
 
-	u.Query().Add("names", url.QueryEscape(fields))
+	q := u.Query()
+	q.Add("names", url.QueryEscape(fields))
 	u.Path = "/api/v3/device/" + url.PathEscape(mac) + "/config"
+	u.RawQuery = q.Encode()
 
 	fmt.Println("URL:", u.String())
 
