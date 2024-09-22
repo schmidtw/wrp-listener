@@ -506,8 +506,6 @@ func main() {
 			}
 
 			if good {
-				go muckWithTr181(macAddress)
-
 				happy.lock.Lock()
 				happy.Items = append(happy.Items, ListItem{
 					MAC:  payload["id"].(string),
@@ -516,6 +514,8 @@ func main() {
 				happy.lock.Unlock()
 				continue
 			}
+
+			go muckWithTr181(macAddress)
 
 			list.lock.Lock()
 			bt := strings.TrimSpace(event.Metadata["/boot-time"])
