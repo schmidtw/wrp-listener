@@ -527,7 +527,7 @@ type Response struct {
 	StatusCode int          `json:"statusCode"`
 }
 
-func getParam(apacsat, mac, fields string) (Response, error) {
+func getParam(creds, mac, fields string) (Response, error) {
 	var result Response
 	client := &http.Client{}
 
@@ -538,12 +538,15 @@ func getParam(apacsat, mac, fields string) (Response, error) {
 
 	u.Query().Add("names", url.QueryEscape(fields))
 	u.Path = "/api/v3/device/" + url.PathEscape(mac) + "/config"
+
+	fmt.Println("URL:", u.String())
+
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return Response{}, err
 	}
 
-	req.Header.Set("Authorization", "Bearer "+apacsat)
+	req.Header.Set("Authorization", "Bearer "+creds)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -571,7 +574,7 @@ func getParam(apacsat, mac, fields string) (Response, error) {
 var stopMucking bool
 
 func muckWithTr181(mac string) {
-	fmt.Println("WTS")
+	fmt.Print(".")
 	var found bool
 	for _, target := range targetCPEs {
 		if target == mac {
