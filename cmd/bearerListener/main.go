@@ -36,8 +36,6 @@ const jitter = 10 * time.Second
 
 const tr181ParameterGET = "Device.DeviceInfo.SerialNumber"
 
-var targetCPEs = []string{}
-
 type eventListener struct {
 	l   *listener.Listener
 	out chan wrp.Message
@@ -503,7 +501,7 @@ func main() {
 
 			if strings.Contains(strings.ToLower(macAddress), strings.ToLower(os.Getenv("TARGET_CPE"))) {
 				fmt.Println("We found a target CPE!: ", macAddress)
-				good = false
+				//good = false
 			}
 
 			if good {
