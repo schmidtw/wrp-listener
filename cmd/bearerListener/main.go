@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"math/rand/v2"
 	"net/http"
 	"os"
@@ -465,22 +464,10 @@ func main() {
 
 	http.Handle("/list", list)
 	http.HandleFunc("/", simpleHandler)
-	//http.ListenAndServe(":9999", nil)
+	http.ListenAndServe(":9999", nil)
 	//if err != nil {
 	//panic(err)
 	//}
-
-	// Create a custom logger that discards log messages
-	nullLogger := log.New(os.Stderr, "", log.LstdFlags)
-	nullLogger.SetOutput(io.Discard)
-
-	server := &http.Server{
-		ReadHeaderTimeout: 5 * time.Second,
-		Addr:              "[::]:9999",
-		ErrorLog:          nullLogger, // Set the custom logger
-	}
-
-	server.ListenAndServe()
 }
 
 type SatResponse struct {
