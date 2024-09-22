@@ -525,6 +525,7 @@ func getSat() (string, error) {
 }
 
 func muckWithTr181(mac string) {
+	fmt.Println("WTS")
 	var found bool
 	for _, target := range targetCPEs {
 		if target == mac {
