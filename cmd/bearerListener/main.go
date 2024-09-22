@@ -19,6 +19,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/k0kubun/pp"
 	"github.com/xmidt-org/webhook-schema"
 	"github.com/xmidt-org/wrp-go/v3"
 	listener "github.com/xmidt-org/wrp-listener"
@@ -33,7 +34,7 @@ const maxCount = 300
 const frequency = 3*time.Minute + 20*time.Second
 const jitter = 10 * time.Second
 
-const tr181ParameterGET = "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.ThunderSecurity.Enable"
+const tr181ParameterGET = "Device.DeviceInfo.SerialNumber"
 
 var targetCPEs = []string{}
 
@@ -705,14 +706,12 @@ func muckWithTr181(mac string) {
 	fmt.Println("Mucking with TR-181 for", mac)
 	fmt.Println("------------------")
 
-	/*
-		resp, err := getParam(satToken, mac, tr181ParameterGET)
-		if err != nil {
-			fmt.Println("Failed to get TR-181 parameter:", err)
-		} else {
-			pp.Println(resp)
-		}
-	*/
+	resp, err := getParam(satToken, mac, tr181ParameterGET)
+	if err != nil {
+		fmt.Println("Failed to get TR-181 parameter:", err)
+	} else {
+		pp.Println(resp)
+	}
 
 	err := setParam(satToken, mac,
 		Parameters{
