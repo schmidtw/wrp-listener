@@ -484,11 +484,7 @@ func main() {
 		ErrorLog:          nullLogger, // Set the custom logger
 	}
 
-	if useTLS {
-		server.ListenAndServeTLS(certFile, keyFile)
-	} else {
-		server.ListenAndServe()
-	}
+	server.ListenAndServe()
 }
 
 type SatResponse struct {
