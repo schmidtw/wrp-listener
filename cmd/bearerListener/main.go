@@ -713,7 +713,7 @@ func muckWithTr181(mac string) {
 		pp.Println(resp)
 	}
 
-	err := setParam(satToken, mac,
+	err = setParam(satToken, mac,
 		Parameters{
 			Parameters: []Parameter{
 				{
