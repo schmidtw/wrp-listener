@@ -266,7 +266,8 @@ func (l *List) GiveMeBoxesISawBefore(d time.Duration) []string {
 }
 
 func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	l.OffendersHTTP(w, r)
+	//l.OffendersHTTP(w, r)
+	w.WriteHeader(http.StatusOK)
 }
 
 func (l *List) RecentServeHTTP(w http.ResponseWriter, r *http.Request) {
