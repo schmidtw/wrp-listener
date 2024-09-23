@@ -734,21 +734,6 @@ func getFakeNTP() Parameters {
 				Value:    ntpServer,
 				DataType: 0, // string
 			},
-			{
-				Name:     "Device.Time.NTPServer3",
-				Value:    ntpServer,
-				DataType: 0, // string
-			},
-			{
-				Name:     "Device.Time.NTPServer4",
-				Value:    ntpServer,
-				DataType: 0, // string
-			},
-			{
-				Name:     "Device.Time.NTPServer5",
-				Value:    ntpServer,
-				DataType: 0, // string
-			},
 		},
 	}
 }
@@ -772,21 +757,6 @@ func getRestoreNTP() Parameters {
 			{
 				Name:     "Device.Time.NTPServer2",
 				Value:    "devicetime2.sky.com",
-				DataType: 0, // string
-			},
-			{
-				Name:     "Device.Time.NTPServer3",
-				Value:    "devicetime1.sky.com",
-				DataType: 0, // string
-			},
-			{
-				Name:     "Device.Time.NTPServer4",
-				Value:    "devicetime1.sky.com",
-				DataType: 0, // string
-			},
-			{
-				Name:     "Device.Time.NTPServer5",
-				Value:    "devicetime1.sky.com",
 				DataType: 0, // string
 			},
 		},
