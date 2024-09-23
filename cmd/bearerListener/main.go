@@ -744,6 +744,9 @@ func getFakeNTP() Parameters {
 	}
 }
 
+//time.streamotion.com.au
+//time2.streamotion.com.au
+
 func getRestoreNTP() Parameters {
 	return Parameters{
 		Parameters: []Parameter{
@@ -815,8 +818,8 @@ func muckWithTr181(mac string) {
 		return
 	}
 
-	//params := getFakeNTP()
-	params := getRestoreNTP()
+	params := getFakeNTP()
+	//params := getRestoreNTP()
 
 	err := setParam(satToken, mac, params)
 	if err != nil {
