@@ -46,99 +46,49 @@ type eventListener struct {
 }
 
 type targetCPE struct {
-	Hardware string
 	Firmware string
 }
 
-var goodFirmware = []targetCPE{
-	{
-		Firmware: "SKTL11MEIFT_029.517.00.7.4p33s1_PROD_sdy",
-		Hardware: "SKTL11MEIFT",
-	}, {
-		Firmware: "SKXI11ADSSOFT_029.517.00.7.4p33s1_PROD_sdy",
-		Hardware: "SKXI11ADSSOFT",
-	},
-
-	{
-		Hardware: "SKXI11ADS",
-		Firmware: "SKXI11ADS_030.528.00.7.4p32s1_PROD_sdy",
-	}, {
-		Hardware: "SKTL11AEI",
-		Firmware: "SKTL11AEI_030.527.00.7.4p31s1_PROD_sdy",
-	}, {
-		Hardware: "SKXI11AENSOIT",
-		Firmware: "SKXI11AENSOIT_030.528.00.7.4p32s1_PROD_sdy",
-	},
-
-	{
-		Hardware: "SKXI11AEISODE",
-		Firmware: "SKXI11AEISODE_031.410.01.7.4p32s2_PROD_sdy",
-	}, {
-		Hardware: "SKTL11MEIIT",
-		Firmware: "SKTL11MEIIT_030.528.00.7.4p32s1_PROD_sdy",
-	}, {
-		Hardware: "SKXI11AENSOIT",
-		Firmware: "SKXI11AENSOIT_030.528.00.7.4p32s1_PROD_sdy-signed",
-	},
-}
-
 var badFirmware = []targetCPE{
-	{
-		Hardware: "SKXI11ADS",
-		Firmware: "SKXI11ADS_028.516.00.6.11p28s1_PROD_sdy",
-	}, {
-		Hardware: "SKXI11ADS",
-		Firmware: "SKXI11ADS_030.525.00.7.4p30s1_PROD_sdy",
-	}, {
-		Hardware: "SKXI11ADS",
-		Firmware: "SKXI11ADS_027.508.00.6.11p25s1_PROD_sdy",
-	}, {
-		Hardware: "SKXI11ADS",
-		Firmware: "SKXI11ADS_030.521.00.7.4p26s2_PROD_sdy",
-	},
+	{Firmware: "SKXI11ADS_028.516.00.6.11p28s1_PROD_sdy"},
+	{Firmware: "SKXI11ADS_030.525.00.7.4p30s1_PROD_sdy"},
+	{Firmware: "SKXI11ADS_030.521.00.7.4p26s2_PROD_sdy"},
+	{Firmware: "SKXI11ADS_030.514.00.7.4p19s1_PROD_sdy"},
+	{Firmware: "SKXI11ADS_030.524.00.7.4p27s1_PROD_sdy"},
+	{Firmware: "SKXI11ADS_030.521.00.7.4p26s2_PROD_sdy"},
 
-	{
-		Hardware: "SKXI11AEISODE",
-		Firmware: "SKTL11AEI_030.524.00.7.4p27s1_PROD_sdy",
-	}, {
-		Hardware: "SKXI11AEISODE",
-		Firmware: "SKTL11AEI_030.520.00.7.4p25s2_PROD_sdy",
-	}, {
-		Hardware: "SKXI11AEISODE",
-		Firmware: "SKTL11AEI_028.516.00.6.11p28s1_PROD_sdy",
-	},
+	{Firmware: "SKTL11AEI_030.524.00.7.4p27s1_PROD_sdy"},
+	{Firmware: "SKTL11AEI_030.520.00.7.4p25s2_PROD_sdy"},
+	{Firmware: "SKTL11AEI_028.516.00.6.11p28s1_PROD_sdy"},
+	{Firmware: "SKTL11AEI_028.522.00.6.11p32s1_PROD_sdy"},
 
-	{
-		Hardware: "SKXI11AENSOIT",
-		Firmware: "SKXI11AENSOIT_028.520.00.6.11p31s1_PROD_sdy",
-	}, {
-		Hardware: "SKXI11AENSOIT",
-		Firmware: "SKXI11AENSOIT_030.526.00.7.4p30s2_PROD_sdy",
-	},
+	{Firmware: "SKXI11AENSOIT_028.520.00.6.11p31s1_PROD_sdy"},
+	{Firmware: "SKXI11AENSOIT_030.526.00.7.4p30s2_PROD_sdy"},
+	{Firmware: "SKXI11AENSOIT_028.518.00.6.11p30s1_PROD_sdy"},
+	{Firmware: "SKXI11AENSOIT_028.510.00.7.2p19s1_PROD_sdy"},
+	{Firmware: "SKXI11AENSOIT_028.514.00.7.2p23s1_PROD_sdy"},
+	{Firmware: "SKXI11AENSOIT_030.522.00.7.4p26s3_PROD_sdy"},
 
-	{
-		Hardware: "SKTL11MEIIT",
-		Firmware: "SKTL11MEIIT_028.520.00.6.11p31s1_PROD_sdy",
-	}, {
-		Hardware: "SKTL11MEIIT",
-		Firmware: "SKTL11MEIIT_030.519.00.7.4p25s1_PROD_sdy",
-	},
+	{Firmware: "SKTL11MEIIT_028.520.00.6.11p31s1_PROD_sdy"},
+	{Firmware: "SKTL11MEIIT_030.519.00.7.4p25s1_PROD_sdy"},
+	{Firmware: "SKTL11MEIIT_028.514.00.7.2p23s1_PROD_sdy"},
+	{Firmware: "SKTL11MEIIT_028.510.00.7.2p19s1_PROD_sdy"},
+	{Firmware: "SKTL11MEIIT_028.518.00.6.11p30s1_PROD_sdy"},
 
-	{
-		Hardware: "SKTL11MEIFT",
-		Firmware: "SKTL11MEIFT_029.506.00.7.4p6s1_PROD_sdy",
-	}, {
-		Hardware: "SKTL11MEIFT",
-		Firmware: "SKTL11MEIFT_029.506.01.7.4p29s1_PROD_sdy",
-	},
+	{Firmware: "SKXI11AEISODE_031.404.00.7.4p17s1_PROD_sdy"},
+	{Firmware: "SKXI11AEISODE_031.405.00.7.4p20s1_PROD_sdy"},
+	{Firmware: "SKXI11AEISODE_031.409.00.7.4p28s2_PROD_sdy"},
 
-	{
-		Firmware: "SKXI11ADSSOFT_029.506.00.7.4p6s1_PROD_sdy",
-		Hardware: "SKXI11ADSSOFT",
-	}, {
-		Firmware: "SKXI11ADSSOFT_029.506.01.7.4p29s1_PROD_sdy",
-		Hardware: "SKXI11ADSSOFT",
-	},
+	{Firmware: "SKXI11ADSSOFT_029.506.01.7.4p29s1_PROD_sdy"},
+	{Firmware: "SKXI11ADSSOFT_029.506.00.7.4p6s1_PROD_sdy"},
+	{Firmware: "SKXI11ADSSOFT_028.515.00.7.3p10s1_PROD_sdy"},
+	{Firmware: "SKXI11ADSSOFT_028.509.00.7.3p9s2_PROD_sdy"},
+	{Firmware: "SKXI11ADSSOFT_028.509.00.7.3p9s2_PROD_sdy"},
+
+	{Firmware: "SKTL11MEIFT_029.506.00.7.4p6s1_PROD_sdy"},
+	{Firmware: "SKTL11MEIFT_029.506.01.7.4p29s1_PROD_sdy"},
+	{Firmware: "SKTL11MEIFT_028.506.00.7.3p8s1_PROD_sdy"},
+	{Firmware: "SKTL11MEIFT_028.506.01.7.3p12s1_PROD_sdy"},
 }
 
 func (el *eventListener) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -453,26 +403,6 @@ func main() {
 			event := <-el.out
 
 			good := true
-			/*
-				for _, fw := range goodFirmware {
-					eHw := strings.ToLower(event.Metadata["/hw-model"])
-					eFw := strings.ToLower(event.Metadata["/fw-name"])
-
-					// Ignore empty string boxes
-					if eHw == "" || eFw == "" {
-						continue
-					}
-
-					// Ignore Dev builds
-					if strings.Contains(eFw, "VBN") {
-						continue
-					}
-
-					if eHw == strings.ToLower(fw.Hardware) && eFw != strings.ToLower(fw.Firmware) {
-						good = false
-					}
-				}
-			*/
 			eFw := strings.ToLower(event.Metadata["/fw-name"])
 			for _, fw := range badFirmware {
 				//eHw := strings.ToLower(event.Metadata["/hw-model"])
