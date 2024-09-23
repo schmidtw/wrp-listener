@@ -732,6 +732,11 @@ func muckWithTr181(mac string) {
 		}
 	}
 
+	if true {
+		fmt.Println("Not mucking with TR-181 for", mac)
+		return
+	}
+
 	err := setParam(satToken, mac,
 		Parameters{
 			Parameters: []Parameter{
