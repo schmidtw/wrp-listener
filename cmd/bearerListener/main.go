@@ -27,6 +27,8 @@ import (
 
 // Start
 
+const filename = "/tmp/state.json"
+
 const lifetime = 15 * time.Minute
 
 // const cutoff = 15 * time.Second
@@ -514,7 +516,7 @@ func main() {
 				continue
 			}
 
-			go muckWithTr181(macAddress)
+			//go muckWithTr181(macAddress)
 
 			list.lock.Lock()
 			bt := strings.TrimSpace(event.Metadata["/boot-time"])
