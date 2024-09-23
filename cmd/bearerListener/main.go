@@ -516,7 +516,7 @@ func main() {
 				continue
 			}
 
-			macAddress := payload["id"].(string)
+			//macAddress := payload["id"].(string)
 			now := time.Now()
 
 			/*
