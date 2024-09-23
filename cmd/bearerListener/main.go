@@ -91,10 +91,10 @@ var badFirmware = []targetCPE{
 		Firmware: "SKXI11ADS_030.525.00.7.4p30s1_PROD_sdy",
 	}, {
 		Hardware: "SKXI11ADS",
-		Firmware: "SKXI11ADS_030.525.00.7.4p30s1_PROD_sdy",
+		Firmware: "SKXI11ADS_027.508.00.6.11p25s1_PROD_sdy",
 	}, {
 		Hardware: "SKXI11ADS",
-		Firmware: "SKXI11ADS_030.525.00.7.4p30s1_PROD_sdy",
+		Firmware: "SKXI11ADS_030.521.00.7.4p26s2_PROD_sdy",
 	},
 
 	{
