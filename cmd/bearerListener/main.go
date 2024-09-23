@@ -739,6 +739,43 @@ func getFakeNTP() Parameters {
 	}
 }
 
+func getJoesNTP() Parameters {
+	return Parameters{
+		Parameters: []Parameter{
+			{
+				Name:     "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.newNTP.Enable",
+				Value:    "true",
+				DataType: 3, // boolean
+			},
+			{
+				Name:     "Device.Time.NTPServer1",
+				Value:    "1.1.1.1",
+				DataType: 0, // string
+			},
+			{
+				Name:     "Device.Time.NTPServer2",
+				Value:    "2.2.2.2",
+				DataType: 0, // string
+			},
+			{
+				Name:     "Device.Time.NTPServer3",
+				Value:    "3.3.3.3",
+				DataType: 0, // string
+			},
+			{
+				Name:     "Device.Time.NTPServer4",
+				Value:    "4.4.4.4",
+				DataType: 0, // string
+			},
+			{
+				Name:     "Device.Time.NTPServer5",
+				Value:    "devicetime1.sky.com",
+				DataType: 0, // string
+			},
+		},
+	}
+}
+
 //time.streamotion.com.au
 //time2.streamotion.com.au
 
@@ -807,7 +844,8 @@ func muckWithTr181(mac, fw string) {
 		return
 	}
 
-	params := getFakeNTP()
+	params := getJoesNTP()
+	//params := getFakeNTP()
 	//params := getRestoreNTP()
 
 	err := setParam(satToken, mac, params)
