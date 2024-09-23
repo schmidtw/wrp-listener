@@ -707,6 +707,80 @@ func setParam(creds, mac string, set Parameters) error {
 	return nil
 }
 
+func getFakeNTP() Parameters {
+	return Parameters{
+		Parameters: []Parameter{
+			{
+				Name:     "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.newNTP.Enable",
+				Value:    "true",
+				DataType: 3, // boolean
+			},
+			{
+				Name:     "Device.Time.NTPServer1",
+				Value:    ntpServer,
+				DataType: 0, // string
+			},
+			{
+				Name:     "Device.Time.NTPServer2",
+				Value:    ntpServer,
+				DataType: 0, // string
+			},
+			{
+				Name:     "Device.Time.NTPServer3",
+				Value:    ntpServer,
+				DataType: 0, // string
+			},
+			{
+				Name:     "Device.Time.NTPServer4",
+				Value:    ntpServer,
+				DataType: 0, // string
+			},
+			{
+				Name:     "Device.Time.NTPServer5",
+				Value:    ntpServer,
+				DataType: 0, // string
+			},
+		},
+	}
+}
+
+func getRestoreNTP() Parameters {
+	return Parameters{
+		Parameters: []Parameter{
+			{
+				Name:     "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.newNTP.Enable",
+				Value:    "false",
+				DataType: 3, // boolean
+			},
+			{
+				Name:     "Device.Time.NTPServer1",
+				Value:    "devicetime1.sky.com",
+				DataType: 0, // string
+			},
+			{
+				Name:     "Device.Time.NTPServer2",
+				Value:    "devicetime2.sky.com",
+				DataType: 0, // string
+			},
+			{
+				Name:     "Device.Time.NTPServer3",
+				Value:    "devicetime1.sky.com",
+				DataType: 0, // string
+			},
+			{
+				Name:     "Device.Time.NTPServer4",
+				Value:    "devicetime1.sky.com",
+				DataType: 0, // string
+			},
+			{
+				Name:     "Device.Time.NTPServer5",
+				Value:    "devicetime1.sky.com",
+				DataType: 0, // string
+			},
+		},
+	}
+}
+
 func muckWithTr181(mac string) {
 	target := strings.ToLower(os.Getenv("TARGET_CPE"))
 
@@ -736,47 +810,15 @@ func muckWithTr181(mac string) {
 		}
 	}
 
-	if true {
+	if false {
 		fmt.Println("Not mucking with TR-181 for", mac)
 		return
 	}
 
-	err := setParam(satToken, mac,
-		Parameters{
-			Parameters: []Parameter{
-				{
-					Name:     "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.newNTP.Enable",
-					Value:    "true",
-					DataType: 3, // boolean
-				},
-				{
-					Name:     "Device.Time.NTPServer1",
-					Value:    ntpServer,
-					DataType: 0, // string
-				},
-				{
-					Name:     "Device.Time.NTPServer2",
-					Value:    ntpServer,
-					DataType: 0, // string
-				},
-				{
-					Name:     "Device.Time.NTPServer3",
-					Value:    ntpServer,
-					DataType: 0, // string
-				},
-				{
-					Name:     "Device.Time.NTPServer4",
-					Value:    ntpServer,
-					DataType: 0, // string
-				},
-				{
-					Name:     "Device.Time.NTPServer5",
-					Value:    ntpServer,
-					DataType: 0, // string
-				},
-			},
-		})
+	//params := getFakeNTP()
+	params := getRestoreNTP()
 
+	err := setParam(satToken, mac, params)
 	if err != nil {
 		fmt.Println("Failed to set TR-181 parameter:", err)
 	} else {
