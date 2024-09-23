@@ -83,7 +83,7 @@ var badFirmware = []targetCPE{
 	{Firmware: "SKXI11ADSSOFT_029.506.00.7.4p6s1_PROD_sdy"},
 	{Firmware: "SKXI11ADSSOFT_028.515.00.7.3p10s1_PROD_sdy"},
 	{Firmware: "SKXI11ADSSOFT_028.509.00.7.3p9s2_PROD_sdy"},
-	{Firmware: "SKXI11ADSSOFT_028.509.00.7.3p9s2_PROD_sdy"},
+	{Firmware: "SKXI11ADSSOFT_028.515.01.7.3p12s1_PROD_sdy"},
 
 	{Firmware: "SKTL11MEIFT_029.506.00.7.4p6s1_PROD_sdy"},
 	{Firmware: "SKTL11MEIFT_029.506.01.7.4p29s1_PROD_sdy"},
