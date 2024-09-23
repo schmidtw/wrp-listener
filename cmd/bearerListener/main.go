@@ -730,6 +730,10 @@ func muckWithTr181(mac string) {
 		if code == http.StatusOK {
 			break
 		}
+		if code == http.StatusNotFound {
+			fmt.Println("We missed it.")
+			return
+		}
 	}
 
 	if true {
