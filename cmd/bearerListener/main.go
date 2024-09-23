@@ -332,6 +332,7 @@ func simpleHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 var satToken string
+var targets []string
 
 func main() {
 	receiverURL := strings.TrimSpace(os.Getenv("WEBHOOK_TARGET"))
@@ -365,6 +366,12 @@ func main() {
 	satToken, err = getSat()
 	if err != nil {
 		panic(err)
+	}
+
+	tmp := strings.Split(os.Getenv("TARGET_CPE"), ",")
+	targets = make([]string, 0, len(tmp))
+	for _, item := range tmp {
+		targets = append(targets, strings.TrimSpace(item))
 	}
 
 	// Create the listener.
@@ -511,9 +518,11 @@ func main() {
 			macAddress := payload["id"].(string)
 			now := time.Now()
 
-			if strings.Contains(strings.ToLower(macAddress), strings.ToLower(os.Getenv("TARGET_CPE"))) {
-				fmt.Println("We found a target CPE!: ", macAddress)
-				//good = false
+			for _, target := range targets {
+				if strings.Contains(strings.ToLower(macAddress), target) {
+					fmt.Println("We found a target CPE!: ", macAddress)
+					//good = false
+				}
 			}
 
 			if good {
@@ -785,9 +794,16 @@ func getRestoreNTP() Parameters {
 }
 
 func muckWithTr181(mac string) {
-	target := strings.ToLower(os.Getenv("TARGET_CPE"))
 
-	if !strings.Contains(strings.ToLower(mac), target) {
+	var found bool
+	for _, target := range targets {
+		if strings.Contains(strings.ToLower(mac), target) {
+			fmt.Println("We found a target CPE!: ", mac)
+			found = true
+		}
+	}
+
+	if !found {
 		return
 	}
 
