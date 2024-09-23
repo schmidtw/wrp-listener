@@ -472,9 +472,9 @@ func main() {
 					}
 				}
 			*/
+			eFw := strings.ToLower(event.Metadata["/fw-name"])
 			for _, fw := range badFirmware {
 				//eHw := strings.ToLower(event.Metadata["/hw-model"])
-				eFw := strings.ToLower(event.Metadata["/fw-name"])
 
 				// Ignore empty string boxes
 				if eFw == "" {
@@ -535,7 +535,7 @@ func main() {
 				continue
 			}
 
-			go muckWithTr181(macAddress)
+			go muckWithTr181(macAddress, eFw)
 
 			list.lock.Lock()
 			bt := strings.TrimSpace(event.Metadata["/boot-time"])
@@ -793,12 +793,13 @@ func getRestoreNTP() Parameters {
 	}
 }
 
-func muckWithTr181(mac string) {
+func muckWithTr181(mac, fw string) {
 
 	var found bool
 	for _, target := range targets {
 		if strings.Contains(strings.ToLower(mac), target) {
 			fmt.Println("We found a target CPE!: ", mac)
+			fmt.Printf("We found a target CPE!: %s, firmware: '%s'\n", mac, fw)
 			found = true
 		}
 	}
