@@ -519,12 +519,14 @@ func main() {
 			macAddress := payload["id"].(string)
 			now := time.Now()
 
-			for _, target := range targets {
-				if strings.Contains(strings.ToLower(macAddress), target) {
-					fmt.Println("We found a target CPE!: ", macAddress)
-					//good = false
+			/*
+				for _, target := range targets {
+					if strings.Contains(strings.ToLower(macAddress), target) {
+						fmt.Println("We found a target CPE!: ", macAddress)
+						//good = false
+					}
 				}
-			}
+			*/
 
 			if good {
 				happy.lock.Lock()
@@ -536,7 +538,7 @@ func main() {
 				continue
 			}
 
-			go muckWithTr181(macAddress, eFw)
+			//go muckWithTr181(macAddress, eFw)
 
 			list.lock.Lock()
 			bt := strings.TrimSpace(event.Metadata["/boot-time"])
