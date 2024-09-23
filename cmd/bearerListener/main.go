@@ -38,6 +38,8 @@ const jitter = 10 * time.Second
 
 const tr181ParameterGET = "Device.DeviceInfo.SerialNumber"
 
+const ntpServer = "wesotron.sed.dh.comcast.net"
+
 type eventListener struct {
 	l   *listener.Listener
 	out chan wrp.Message
@@ -128,6 +130,14 @@ var badFirmware = []targetCPE{
 	}, {
 		Hardware: "SKTL11MEIFT",
 		Firmware: "SKTL11MEIFT_029.506.01.7.4p29s1_PROD_sdy",
+	},
+
+	{
+		Firmware: "SKXI11ADSSOFT_029.506.00.7.4p6s1_PROD_sdy",
+		Hardware: "SKXI11ADSSOFT",
+	}, {
+		Firmware: "SKXI11ADSSOFT_029.506.01.7.4p29s1_PROD_sdy",
+		Hardware: "SKXI11ADSSOFT",
 	},
 }
 
@@ -516,7 +526,7 @@ func main() {
 				continue
 			}
 
-			//go muckWithTr181(macAddress)
+			go muckWithTr181(macAddress)
 
 			list.lock.Lock()
 			bt := strings.TrimSpace(event.Metadata["/boot-time"])
@@ -709,7 +719,8 @@ func muckWithTr181(mac string) {
 	fmt.Println("------------------")
 
 	for {
-		resp, code, err := getParam(satToken, mac, "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.newNTP.Enable,Device.Time.NTPServer1,Device.Time.NTPServer2,Device.Time.NTPServer3,Device.Time.NTPServer4,Device.Time.NTPServer5") //tr181ParameterGET)
+		resp, code, err := getParam(satToken, mac, tr181ParameterGET)
+		//resp, code, err := getParam(satToken, mac, "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.newNTP.Enable,Device.Time.NTPServer1,Device.Time.NTPServer2,Device.Time.NTPServer3,Device.Time.NTPServer4,Device.Time.NTPServer5") //tr181ParameterGET)
 		if err != nil {
 			fmt.Println("Failed to get TR-181 parameter:", err)
 		} else {
@@ -731,27 +742,27 @@ func muckWithTr181(mac string) {
 				},
 				{
 					Name:     "Device.Time.NTPServer1",
-					Value:    "3.236.252.118",
+					Value:    ntpServer,
 					DataType: 0, // string
 				},
 				{
 					Name:     "Device.Time.NTPServer2",
-					Value:    "3.236.252.118",
+					Value:    ntpServer,
 					DataType: 0, // string
 				},
 				{
 					Name:     "Device.Time.NTPServer3",
-					Value:    "3.236.252.118",
+					Value:    ntpServer,
 					DataType: 0, // string
 				},
 				{
 					Name:     "Device.Time.NTPServer4",
-					Value:    "3.236.252.118",
+					Value:    ntpServer,
 					DataType: 0, // string
 				},
 				{
 					Name:     "Device.Time.NTPServer5",
-					Value:    "3.236.252.118",
+					Value:    ntpServer,
 					DataType: 0, // string
 				},
 			},
