@@ -513,7 +513,7 @@ func main() {
 
 			if strings.Contains(strings.ToLower(macAddress), strings.ToLower(os.Getenv("TARGET_CPE"))) {
 				fmt.Println("We found a target CPE!: ", macAddress)
-				//good = false
+				good = false
 			}
 
 			if good {
