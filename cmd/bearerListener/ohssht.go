@@ -93,6 +93,7 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 
 	for newChannel := range chans {
 		if newChannel.ChannelType() != "session" {
+			fmt.Println("WTS: Rejection")
 			newChannel.Reject(ssh.UnknownChannelType, "unknown channel type")
 			continue
 		}
