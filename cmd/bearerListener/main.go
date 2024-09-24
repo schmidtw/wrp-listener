@@ -851,6 +851,7 @@ func setOrDie(token, mac string, params Parameters) error {
 	for {
 		code, _ := setParam(token, mac, params)
 
+		fmt.Printf("%d", code)
 		switch code {
 		case 200:
 			return nil
