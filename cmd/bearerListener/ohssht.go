@@ -94,7 +94,7 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 	// Extract the client's IP address
 	clientAddr := sshConn.RemoteAddr().String()
 	fmt.Printf("WTS: remote client address: %s", clientAddr)
-	localAddr := sshConn.RemoteAddr().String()
+	localAddr := sshConn.LocalAddr().String()
 	fmt.Printf("WTS: local client address: %s", localAddr)
 
 	go ssh.DiscardRequests(reqs)
