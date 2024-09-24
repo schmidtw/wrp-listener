@@ -782,7 +782,7 @@ func muckWithTr181(mac, fw string) {
 
 	var found bool
 	for _, target := range targets {
-		fmt.Printf("%s ? %s\n", strings.ToLower(mac), strings.ToLower(target))
+		//fmt.Printf("%s ? %s\n", strings.ToLower(mac), strings.ToLower(target))
 		if strings.Contains(strings.ToLower(mac), strings.ToLower(target)) {
 			fmt.Println("We found a target CPE!: ", mac)
 			fmt.Printf("We found a target CPE!: %s, firmware: '%s'\n", mac, fw)
