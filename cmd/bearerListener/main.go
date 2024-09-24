@@ -232,6 +232,7 @@ func (l *List) GiveMeBoxesInAWindow(after, before time.Duration) []string {
 	for mac, when := range dedup {
 		if when.After(startTime) && when.Before(endTime) {
 			macs = append(macs, mac)
+			fmt.Printf("%s\n", now.Sub(when))
 		}
 	}
 	return macs
