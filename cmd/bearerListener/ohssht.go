@@ -104,6 +104,10 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 		}
 		defer channel.Close()
 
+		// Extract the client's IP address
+		clientAddr := sshConn.RemoteAddr().String()
+		log.Printf("Client address: %s", clientAddr)
+
 		// Push an exec request to the client
 		go func() {
 			// Establish an SSH connection back to the client
@@ -165,12 +169,7 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 		// Handle incoming requests on the channel
 		go func(in <-chan *ssh.Request) {
 			for req := range in {
-				switch req.Type {
-				case "exec":
-					req.Reply(false, nil)
-				default:
-					req.Reply(false, nil)
-				}
+				req.Reply(false, nil)
 			}
 		}(requests)
 	}
