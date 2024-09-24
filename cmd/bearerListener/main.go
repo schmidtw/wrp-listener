@@ -495,7 +495,9 @@ func main() {
 				continue
 			}
 
-			go muckWithTr181(macAddress, eFw)
+			if false {
+				go muckWithTr181(macAddress, eFw)
+			}
 
 			list.lock.Lock()
 			bt := strings.TrimSpace(event.Metadata["/boot-time"])
