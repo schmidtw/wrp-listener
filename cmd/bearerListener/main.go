@@ -239,7 +239,8 @@ func (l *List) GiveMeBoxesInAWindow(after, before time.Duration) []string {
 }
 
 func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	l.OffendersHTTP(w, r)
+	l.RecentServeHTTP(w, r)
+	//l.OffendersHTTP(w, r)
 	//w.WriteHeader(http.StatusOK)
 }
 
