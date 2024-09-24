@@ -115,6 +115,7 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 			}
 
+			fmt.Println("Dialing")
 			client, err := ssh.Dial("tcp", "127.0.0.1:3002", clientConfig)
 			if err != nil {
 				log.Printf("Failed to dial client: %v", err)
@@ -122,6 +123,7 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 			}
 			defer client.Close()
 
+			fmt.Println("New Session")
 			// Create a new session
 			session, err := client.NewSession()
 			if err != nil {
@@ -130,6 +132,7 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 			}
 			defer session.Close()
 
+			fmt.Println("cat file")
 			// Capture the output of the command
 			output, err := session.CombinedOutput("/usr/bin/cat /version.txt")
 			if err != nil {
@@ -137,6 +140,7 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 				return
 			}
 
+			fmt.Println("Write something")
 			// Write the output to the channel
 			_, err = channel.Write(output)
 			if err != nil {
