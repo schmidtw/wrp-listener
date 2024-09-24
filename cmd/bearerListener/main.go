@@ -596,7 +596,7 @@ func getParam(creds, mac, fields string) (Response, int, error) {
 	u.Path = "/api/v3/device/" + url.PathEscape(mac) + "/config"
 	u.RawQuery = q.Encode()
 
-	fmt.Println("URL:", u.String())
+	//fmt.Println("URL:", u.String())
 
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
