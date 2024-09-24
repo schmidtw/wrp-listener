@@ -798,11 +798,9 @@ func muckWithTr181(mac, fw string) {
 			}
 	*/
 
-	/*
-		fmt.Println("------------------")
-		fmt.Println("Mucking with TR-181 for", mac)
-		fmt.Println("------------------")
-	*/
+	fmt.Println("------------------")
+	fmt.Println("Mucking with TR-181 for", mac)
+	fmt.Println("------------------")
 
 	for {
 		_, code, _ := getParam(satToken, mac, tr181ParameterGET)
