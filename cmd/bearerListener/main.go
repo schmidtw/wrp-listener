@@ -221,7 +221,7 @@ func (l *List) GiveMeBoxesInAWindow(after, before time.Duration) []string {
 
 	now := time.Now()
 	startTime := now.Add(-before)
-	endTime := now.Add(-after)
+	//endTime := now.Add(-after)
 
 	dedup := make(map[string]time.Time)
 	for _, item := range l.Items {
@@ -230,7 +230,8 @@ func (l *List) GiveMeBoxesInAWindow(after, before time.Duration) []string {
 
 	var macs []string
 	for mac, when := range dedup {
-		if when.After(startTime) && when.Before(endTime) {
+		if when.Before(startTime) {
+			//if when.After(startTime) && when.Before(endTime) {
 			macs = append(macs, mac)
 			fmt.Printf("%s\n", now.Sub(when))
 		}
