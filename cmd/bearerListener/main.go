@@ -431,6 +431,15 @@ func main() {
 		for {
 			event := <-el.out
 
+			var payload map[string]any
+			err = json.Unmarshal(event.Payload, &payload)
+			if err != nil {
+				continue
+			}
+
+			macAddress := payload["id"].(string)
+			now := time.Now()
+
 			good := true
 			eFw := strings.ToLower(event.Metadata["/fw-name"])
 			for _, fw := range badFirmware {
@@ -443,6 +452,9 @@ func main() {
 
 				// Ignore Dev builds
 				if strings.Contains(eFw, "VBN") {
+					if true {
+						go muckWithTr181(macAddress, eFw)
+					}
 					continue
 				}
 
@@ -469,15 +481,6 @@ func main() {
 				}
 			*/
 
-			var payload map[string]any
-			err = json.Unmarshal(event.Payload, &payload)
-			if err != nil {
-				continue
-			}
-
-			macAddress := payload["id"].(string)
-			now := time.Now()
-
 			/*
 				for _, target := range targets {
 					if strings.Contains(strings.ToLower(macAddress), target) {
@@ -495,10 +498,6 @@ func main() {
 				})
 				happy.lock.Unlock()
 				continue
-			}
-
-			if true {
-				go muckWithTr181(macAddress, eFw)
 			}
 
 			list.lock.Lock()
