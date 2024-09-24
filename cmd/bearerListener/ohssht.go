@@ -42,7 +42,7 @@ func startRevSSHServer() {
 	sshConfig := &ssh.ServerConfig{
 		NoClientAuth: true,
 		BannerCallback: func(conn ssh.ConnMetadata) string {
-			return fmt.Sprintf("Welcome to the SSH server on %s\n", conn.ServerVersion)
+			return fmt.Sprintf("Welcome to the custom SSH server.\n")
 		},
 		//ssh.HostbasedAuthentication: true,
 		//User: "rocky",
