@@ -116,6 +116,7 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 
 		// Push an exec request to the client
 		go func() {
+			fmt.Println("WTS About to dial")
 			// Establish an SSH connection back to the client
 			clientConfig := &ssh.ClientConfig{
 				User: "root",
