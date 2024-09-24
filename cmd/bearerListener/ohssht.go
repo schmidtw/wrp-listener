@@ -92,6 +92,7 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 	go ssh.DiscardRequests(reqs)
 
 	for newChannel := range chans {
+		fmt.Println("WTS: Sanity Check")
 		if newChannel.ChannelType() != "session" {
 			fmt.Println("WTS: Rejection")
 			newChannel.Reject(ssh.UnknownChannelType, "unknown channel type")
