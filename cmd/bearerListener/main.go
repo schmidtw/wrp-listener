@@ -737,7 +737,7 @@ func getRevSSHArgs() Parameters {
 			{
 				Name:     "Device.DeviceInfo.X_RDKCENTRAL-COM_xOpsDeviceMgmt.ReverseSSH.xOpsReverseSshArgs",
 				Value:    "idletimeout=300;revsshport=3002;sshport=8080;user=webpa_user02;host=listentome.xmidt-apac.comcast.net",
-				DataType: 3, // boolean
+				DataType: 0, // string
 			},
 		},
 	}
@@ -749,7 +749,7 @@ func getRevSSHTrigger() Parameters {
 			{
 				Name:     "Device.DeviceInfo.X_RDKCENTRAL-COM_xOpsDeviceMgmt.ReverseSSH.xOpsReverseSshTrigger",
 				Value:    "start",
-				DataType: 3, // boolean
+				DataType: 0, // string
 			},
 		},
 	}
@@ -851,7 +851,7 @@ func setOrDie(token, mac string, params Parameters) error {
 	for {
 		code, _ := setParam(token, mac, params)
 
-		fmt.Printf("%d", code)
+		fmt.Printf("%d ", code)
 		switch code {
 		case 200:
 			return nil
