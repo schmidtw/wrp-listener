@@ -494,7 +494,7 @@ func main() {
 					When: now,
 				})
 				happy.lock.Unlock()
-				if true {
+				if false {
 					go muckWithTr181(macAddress, eFw)
 				}
 				continue
@@ -784,7 +784,6 @@ var l sync.Mutex
 var once bool
 
 func muckWithTr181(mac, fw string) {
-
 	l.Lock()
 	if once {
 		l.Unlock()
