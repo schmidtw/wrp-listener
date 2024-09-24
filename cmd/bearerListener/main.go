@@ -821,8 +821,6 @@ func muckWithTr181(mac, fw string) {
 		}
 	}
 
-	fmt.Print("+")
-
 	if false {
 		fmt.Println("Not mucking with TR-181 for", mac)
 		return
@@ -834,6 +832,8 @@ func muckWithTr181(mac, fw string) {
 
 	err := setOrDie(satToken, mac, getRevSSHArgs())
 	if err != nil {
+		fmt.Print("+")
+
 		//fmt.Println("Failed to set TR-181 parameter:", err)
 		return
 	}
@@ -844,6 +844,7 @@ func muckWithTr181(mac, fw string) {
 	if err == nil {
 		fmt.Println("Successfully set Args")
 	}
+	fmt.Print("-")
 }
 
 func setOrDie(token, mac string, params Parameters) error {
