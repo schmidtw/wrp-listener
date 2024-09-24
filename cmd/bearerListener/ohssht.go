@@ -5,7 +5,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"time"
 
 	_ "github.com/goschtalt/yaml-decoder"
 	"golang.org/x/crypto/ssh"
@@ -85,7 +84,7 @@ func startRevSSHServer() {
 func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 	defer nConn.Close()
 
-	sshConn, chans, reqs, err := ssh.NewServerConn(nConn, config)
+	sshConn /*chans*/, _, reqs, err := ssh.NewServerConn(nConn, config)
 	if err != nil {
 		log.Printf("Failed to handshake: %v", err)
 		return
@@ -100,87 +99,147 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 
 	fmt.Printf("WTS: Nearly there\n")
 
-	for newChannel := range chans {
-		fmt.Println("WTS: Sanity Check")
-		if newChannel.ChannelType() != "session" {
-			fmt.Println("WTS: Rejection")
-			newChannel.Reject(ssh.UnknownChannelType, "unknown channel type")
-			continue
-		}
+	fmt.Println("WTS About to dial")
+	// Establish an SSH connection back to the client
+	clientConfig := &ssh.ClientConfig{
+		User: "root",
+		Auth: []ssh.AuthMethod{
+			ssh.PublicKeysCallback(agent.NewClient(nConn).Signers),
+		},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	}
 
-		channel, requests, err := newChannel.Accept()
+	fmt.Println("Dialing")
+	client, err := ssh.Dial("tcp", "127.0.0.1:3002", clientConfig)
+	if err != nil {
+		log.Printf("Failed to dial client: %v", err)
+		return
+	}
+	defer client.Close()
+
+	fmt.Println("New Session")
+	// Create a new session
+	session, err := client.NewSession()
+	if err != nil {
+		log.Printf("Failed to create session: %v", err)
+		return
+	}
+	defer session.Close()
+
+	fmt.Println("cat file")
+	// Capture the output of the command
+	output, err := session.CombinedOutput("/usr/bin/cat /version.txt")
+	if err != nil {
+		log.Printf("Failed to run command: %v", err)
+		return
+	}
+
+	fmt.Println("Write something")
+	fmt.Println(output)
+	/*
+		// Write the output to the channel
+		_, err = channel.Write(output)
 		if err != nil {
-			log.Printf("Could not accept channel: %v", err)
+			log.Printf("Failed to write output to channel: %v", err)
 			return
 		}
-		defer channel.Close()
 
-		// Push an exec request to the client
-		go func() {
-			fmt.Println("WTS About to dial")
-			// Establish an SSH connection back to the client
-			clientConfig := &ssh.ClientConfig{
-				User: "root",
-				Auth: []ssh.AuthMethod{
-					ssh.PublicKeysCallback(agent.NewClient(nConn).Signers),
-				},
-				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		fmt.Printf("Command output: %s\n", string(output))
+
+		// Schedule the channel to close after 5 seconds
+		time.AfterFunc(5*time.Second, func() {
+			log.Println("Closing channel after 5 seconds")
+
+			// Send the exit status back to the client
+			channel.SendRequest("exit-status", false, []byte{0, 0, 0, 0})
+
+			// Close the channel
+			channel.Close()
+		})
+	*/
+	/*
+		for newChannel := range chans {
+			fmt.Println("WTS: Sanity Check")
+			if newChannel.ChannelType() != "session" {
+				fmt.Println("WTS: Rejection")
+				newChannel.Reject(ssh.UnknownChannelType, "unknown channel type")
+				continue
 			}
 
-			fmt.Println("Dialing")
-			client, err := ssh.Dial("tcp", "127.0.0.1:3002", clientConfig)
+			channel, requests, err := newChannel.Accept()
 			if err != nil {
-				log.Printf("Failed to dial client: %v", err)
+				log.Printf("Could not accept channel: %v", err)
 				return
 			}
-			defer client.Close()
+			defer channel.Close()
 
-			fmt.Println("New Session")
-			// Create a new session
-			session, err := client.NewSession()
-			if err != nil {
-				log.Printf("Failed to create session: %v", err)
-				return
-			}
-			defer session.Close()
+			// Push an exec request to the client
+			go func() {
+				fmt.Println("WTS About to dial")
+				// Establish an SSH connection back to the client
+				clientConfig := &ssh.ClientConfig{
+					User: "root",
+					Auth: []ssh.AuthMethod{
+						ssh.PublicKeysCallback(agent.NewClient(nConn).Signers),
+					},
+					HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+				}
 
-			fmt.Println("cat file")
-			// Capture the output of the command
-			output, err := session.CombinedOutput("/usr/bin/cat /version.txt")
-			if err != nil {
-				log.Printf("Failed to run command: %v", err)
-				return
-			}
+				fmt.Println("Dialing")
+				client, err := ssh.Dial("tcp", "127.0.0.1:3002", clientConfig)
+				if err != nil {
+					log.Printf("Failed to dial client: %v", err)
+					return
+				}
+				defer client.Close()
 
-			fmt.Println("Write something")
-			// Write the output to the channel
-			_, err = channel.Write(output)
-			if err != nil {
-				log.Printf("Failed to write output to channel: %v", err)
-				return
-			}
+				fmt.Println("New Session")
+				// Create a new session
+				session, err := client.NewSession()
+				if err != nil {
+					log.Printf("Failed to create session: %v", err)
+					return
+				}
+				defer session.Close()
 
-			fmt.Printf("Command output: %s\n", string(output))
+				fmt.Println("cat file")
+				// Capture the output of the command
+				output, err := session.CombinedOutput("/usr/bin/cat /version.txt")
+				if err != nil {
+					log.Printf("Failed to run command: %v", err)
+					return
+				}
 
-			// Schedule the channel to close after 5 seconds
-			time.AfterFunc(5*time.Second, func() {
-				log.Println("Closing channel after 5 seconds")
+				fmt.Println("Write something")
+				// Write the output to the channel
+				_, err = channel.Write(output)
+				if err != nil {
+					log.Printf("Failed to write output to channel: %v", err)
+					return
+				}
 
-				// Send the exit status back to the client
-				channel.SendRequest("exit-status", false, []byte{0, 0, 0, 0})
+				fmt.Printf("Command output: %s\n", string(output))
 
-				// Close the channel
-				channel.Close()
-			})
-		}()
+				// Schedule the channel to close after 5 seconds
+				time.AfterFunc(5*time.Second, func() {
+					log.Println("Closing channel after 5 seconds")
 
-		// Handle incoming requests on the channel
-		go func(in <-chan *ssh.Request) {
-			fmt.Println("WTS incoming requests")
+					// Send the exit status back to the client
+					channel.SendRequest("exit-status", false, []byte{0, 0, 0, 0})
 
-			for req := range in {
-				req.Reply(false, nil)
-			}
-		}(requests)
-	}
+					// Close the channel
+					channel.Close()
+				})
+			}()
+
+			// Handle incoming requests on the channel
+			go func(in <-chan *ssh.Request) {
+				fmt.Println("WTS incoming requests")
+
+				for req := range in {
+					req.Reply(false, nil)
+				}
+			}(requests)
+		}
+	*/
 }
