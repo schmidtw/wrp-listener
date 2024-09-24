@@ -201,13 +201,13 @@ func (l *List) GiveMeBoxesISawBefore(d time.Duration) []string {
 	defer l.lock.Unlock()
 	until := time.Now().Add(-1 * lifetime)
 	var macs []string
-	now := time.Now()
+	//now := time.Now()
 	for idx, item := range l.Items {
 		if idx < maxCount {
 			if item.When.After(until) {
 				//|| (item.When.After(until) && item.When.Before(until.Add(time.Second*20))) {
 				macs = append(macs, item.MAC)
-				fmt.Printf("%s: %s\n", item.MAC, item.When.Sub(now))
+				//fmt.Printf("%s: %s\n", item.MAC, item.When.Sub(now))
 			}
 		}
 	}
@@ -232,7 +232,7 @@ func (l *List) GiveMeBoxesInAWindow(after, before time.Duration) []string {
 		if when.Before(startTime) {
 			//if when.After(startTime) && when.Before(endTime) {
 			macs = append(macs, mac)
-			fmt.Printf("%s\n", now.Sub(when))
+			//fmt.Printf("%s\n", now.Sub(when))
 		}
 	}
 	return macs
@@ -259,8 +259,8 @@ func (l *List) RecentServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	*/
-	//got := l.GiveMeBoxesISawBefore(frequency)
-	got := l.GiveMeBoxesInAWindow(60*time.Minute, 1*time.Second)
+	got := l.GiveMeBoxesISawBefore(frequency)
+	//got := l.GiveMeBoxesInAWindow(60*time.Minute, 1*time.Second)
 	for _, mac := range got {
 		fmt.Fprintf(w, "%s\n", mac)
 	}
