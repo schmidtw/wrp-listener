@@ -91,6 +91,12 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 	}
 	defer sshConn.Close()
 
+	fmt.Println("WTS: I have an ssh connection")
+
+	// Extract the client's IP address
+	clientAddr := sshConn.RemoteAddr().String()
+	log.Printf("Client address: %s", clientAddr)
+
 	go ssh.DiscardRequests(reqs)
 
 	for newChannel := range chans {
@@ -107,10 +113,6 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 			return
 		}
 		defer channel.Close()
-
-		// Extract the client's IP address
-		clientAddr := sshConn.RemoteAddr().String()
-		log.Printf("Client address: %s", clientAddr)
 
 		// Push an exec request to the client
 		go func() {
