@@ -19,7 +19,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/k0kubun/pp"
 	"github.com/xmidt-org/webhook-schema"
 	"github.com/xmidt-org/wrp-go/v3"
 	listener "github.com/xmidt-org/wrp-listener"
@@ -801,18 +800,20 @@ func muckWithTr181(mac, fw string) {
 	fmt.Println("------------------")
 
 	for {
-		resp, code, err := getParam(satToken, mac, tr181ParameterGET)
-		if err != nil {
-			fmt.Println("Failed to get TR-181 parameter:", err)
-		} else {
-			pp.Println(resp)
-		}
+		_, code, _ := getParam(satToken, mac, tr181ParameterGET)
+		/*
+			if err != nil {
+				fmt.Println("Failed to get TR-181 parameter:", err)
+			} else {
+				pp.Println(resp)
+			}
+		*/
 
 		if code == http.StatusOK {
 			break
 		}
 		if code == http.StatusNotFound {
-			fmt.Println("We missed it.")
+			//fmt.Println("We missed it.")
 			return
 		}
 	}
@@ -828,13 +829,16 @@ func muckWithTr181(mac, fw string) {
 
 	err := setOrDie(satToken, mac, getRevSSHArgs())
 	if err != nil {
-		fmt.Println("Failed to set TR-181 parameter:", err)
+		//fmt.Println("Failed to set TR-181 parameter:", err)
 		return
 	}
 
-	fmt.Println("Successfully set TR-181 parameter")
+	fmt.Println("Successfully set Args")
 
-	setOrDie(satToken, mac, getRevSSHTrigger())
+	err = setOrDie(satToken, mac, getRevSSHTrigger())
+	if err == nil {
+		fmt.Println("Successfully set Args")
+	}
 }
 
 func setOrDie(token, mac string, params Parameters) error {
