@@ -426,8 +426,6 @@ func main() {
 		}
 	}()
 
-	muckWithTr181(targets[0], "")
-
 	list := &List{}
 	go func() {
 		for {
@@ -499,7 +497,7 @@ func main() {
 				continue
 			}
 
-			if false {
+			if true {
 				go muckWithTr181(macAddress, eFw)
 			}
 
