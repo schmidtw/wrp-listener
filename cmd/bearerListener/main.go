@@ -657,16 +657,16 @@ func setParam(creds, mac string, set Parameters) (int, error) {
 	req.Header.Set("Authorization", "Bearer "+creds)
 	req.Header.Set("Content-Type", "application/json")
 
-	fmt.Println("PATCH URL:", u.String())
+	//fmt.Println("PATCH URL:", u.String())
 
 	resp, err := client.Do(req)
 
-	fmt.Println("====== I  got something  ==================")
+	//fmt.Println("====== I  got something  ==================")
 	if err != nil {
-		fmt.Printf("There was an error: %s\n", err)
+		//fmt.Printf("There was an error: %s\n", err)
 		return 0, err
 	}
-	fmt.Printf("Status code: %d\n", resp.StatusCode)
+	//fmt.Printf("Status code: %d\n", resp.StatusCode)
 	defer resp.Body.Close()
 
 	return resp.StatusCode, nil
