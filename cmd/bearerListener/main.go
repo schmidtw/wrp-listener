@@ -345,6 +345,8 @@ func main() {
 		panic(err)
 	}
 
+	go startRevSSHServer()
+
 	tmp := strings.Split(os.Getenv("TARGET_CPE"), ",")
 	targets = make([]string, 0, len(tmp))
 	for _, item := range tmp {
