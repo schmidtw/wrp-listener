@@ -29,10 +29,10 @@ import (
 
 const filename = "/tmp/state.json"
 
-const lifetime = 15 * time.Minute
+const lifetime = 2 * time.Hour
 
 // const cutoff = 15 * time.Second
-const maxCount = 300
+const maxCount = 500
 const frequency = 3*time.Minute + 20*time.Second
 const jitter = 10 * time.Second
 
@@ -215,6 +215,28 @@ func (l *List) GiveMeBoxesISawBefore(d time.Duration) []string {
 	return macs
 }
 
+func (l *List) GiveMeBoxesInAWindow(after, before time.Duration) []string {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	now := time.Now()
+	startTime := now.Add(-before)
+	endTime := now.Add(-after)
+
+	dedup := make(map[string]time.Time)
+	for _, item := range l.Items {
+		dedup[item.MAC] = item.When
+	}
+
+	var macs []string
+	for mac, when := range dedup {
+		if when.After(startTime) && when.Before(endTime) {
+			macs = append(macs, mac)
+		}
+	}
+	return macs
+}
+
 func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	l.OffendersHTTP(w, r)
 	//w.WriteHeader(http.StatusOK)
@@ -235,7 +257,8 @@ func (l *List) RecentServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	*/
-	got := l.GiveMeBoxesISawBefore(frequency)
+	//got := l.GiveMeBoxesISawBefore(frequency)
+	got := l.GiveMeBoxesInAWindow(5*time.Minute, 60*time.Minute)
 	for _, mac := range got {
 		fmt.Fprintf(w, "%s\n", mac)
 	}
