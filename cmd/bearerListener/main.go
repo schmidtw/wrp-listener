@@ -790,9 +790,11 @@ func muckWithTr181(mac, fw string) {
 		}
 	}
 
-	if !found {
-		return
-	}
+	/*
+		if !found {
+			return
+		}
+	*/
 
 	fmt.Println("------------------")
 	fmt.Println("Mucking with TR-181 for", mac)
@@ -815,7 +817,7 @@ func muckWithTr181(mac, fw string) {
 		}
 	}
 
-	if true {
+	if false {
 		fmt.Println("Not mucking with TR-181 for", mac)
 		return
 	}
