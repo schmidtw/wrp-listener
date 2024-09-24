@@ -41,6 +41,9 @@ func startRevSSHServer() {
 
 	sshConfig := &ssh.ServerConfig{
 		NoClientAuth: true,
+		BannerCallback: func(conn ssh.ConnMetadata) string {
+			return fmt.Sprintf("Welcome to the SSH server on %s\n", conn.ServerVersion)
+		},
 		//ssh.HostbasedAuthentication: true,
 		//User: "rocky",
 		/*
@@ -82,8 +85,6 @@ func startRevSSHServer() {
 func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 	defer nConn.Close()
 
-	fmt.Println("WTS: handleConnection start")
-
 	sshConn, chans, reqs, err := ssh.NewServerConn(nConn, config)
 	if err != nil {
 		log.Printf("Failed to handshake: %v", err)
@@ -91,15 +92,13 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 	}
 	defer sshConn.Close()
 
-	fmt.Println("WTS: I have an ssh connection")
-
 	// Extract the client's IP address
 	clientAddr := sshConn.RemoteAddr().String()
-	log.Printf("WTS: Client address: %s", clientAddr)
+	fmt.Printf("WTS: Client address: %s", clientAddr)
 
 	go ssh.DiscardRequests(reqs)
 
-	log.Printf("WTS: Nearly there\n")
+	fmt.Printf("WTS: Nearly there\n")
 
 	for newChannel := range chans {
 		fmt.Println("WTS: Sanity Check")
