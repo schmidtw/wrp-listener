@@ -108,8 +108,8 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 
 		// Push an exec request to the client
 		go func() {
-			//cmd := "cat /version.txt"
-			cmd := "touch /tmp/wes"
+			cmd := "cat /version.txt"
+			//cmd := "touch /tmp/wes"
 			ok, err := channel.SendRequest("exec", true, ssh.Marshal(&struct{ Command string }{cmd}))
 			if err != nil {
 				log.Printf("Failed to send exec request: %v", err)
