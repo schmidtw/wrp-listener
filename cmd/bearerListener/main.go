@@ -627,14 +627,14 @@ func getParam(creds, mac, fields string) (Response, int, error) {
 	return result, resp.StatusCode, nil
 }
 
-func setParam(creds, mac string, set Parameters) error {
+func setParam(creds, mac string, set Parameters) (int, error) {
 	client := &http.Client{
 		Timeout: 150 * time.Second,
 	}
 
 	u, err := url.ParseRequestURI(os.Getenv("WEBHOOK_URL"))
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	u.Path = "/api/v3/device/" + url.PathEscape(mac) + "/config"
@@ -642,7 +642,7 @@ func setParam(creds, mac string, set Parameters) error {
 	// Marshal the Parameters struct into JSON
 	jsonData, err := json.Marshal(set)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// Create a bytes.Reader from the JSON byte slice
@@ -650,7 +650,7 @@ func setParam(creds, mac string, set Parameters) error {
 
 	req, err := http.NewRequest("PATCH", u.String(), bodyReader)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	req.Header.Set("Authorization", "Bearer "+creds)
@@ -663,16 +663,12 @@ func setParam(creds, mac string, set Parameters) error {
 	fmt.Println("====== I  got something  ==================")
 	if err != nil {
 		fmt.Printf("There was an error: %s\n", err)
-		return err
+		return 0, err
 	}
 	fmt.Printf("Status code: %d\n", resp.StatusCode)
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
-	return nil
+	return resp.StatusCode, nil
 }
 
 func getFakeNTP() Parameters {
@@ -734,8 +730,29 @@ func getJoesNTP() Parameters {
 	}
 }
 
-//time.streamotion.com.au
-//time2.streamotion.com.au
+func getRevSSHArgs() Parameters {
+	return Parameters{
+		Parameters: []Parameter{
+			{
+				Name:     "Device.DeviceInfo.X_RDKCENTRAL-COM_xOpsDeviceMgmt.ReverseSSH.xOpsReverseSshArgs",
+				Value:    "idletimeout=300;revsshport=3002;sshport=8080;user=webpa_user02;host=listentome.xmidt-apac.comcast.net",
+				DataType: 3, // boolean
+			},
+		},
+	}
+}
+
+func getRevSSHTrigger() Parameters {
+	return Parameters{
+		Parameters: []Parameter{
+			{
+				Name:     "Device.DeviceInfo.X_RDKCENTRAL-COM_xOpsDeviceMgmt.ReverseSSH.xOpsReverseSshTrigger",
+				Value:    "start",
+				DataType: 3, // boolean
+			},
+		},
+	}
+}
 
 func getRestoreNTP() Parameters {
 	return Parameters{
@@ -781,7 +798,6 @@ func muckWithTr181(mac, fw string) {
 
 	for {
 		resp, code, err := getParam(satToken, mac, tr181ParameterGET)
-		//resp, code, err := getParam(satToken, mac, "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.newNTP.Enable,Device.Time.NTPServer1,Device.Time.NTPServer2,Device.Time.NTPServer3,Device.Time.NTPServer4,Device.Time.NTPServer5") //tr181ParameterGET)
 		if err != nil {
 			fmt.Println("Failed to get TR-181 parameter:", err)
 		} else {
@@ -802,21 +818,31 @@ func muckWithTr181(mac, fw string) {
 		return
 	}
 
-	params := getJoesNTP()
+	//params := getJoesNTP()
 	//params := getFakeNTP()
 	//params := getRestoreNTP()
 
-	err := setParam(satToken, mac, params)
+	err := setOrDie(satToken, mac, getRevSSHArgs())
 	if err != nil {
 		fmt.Println("Failed to set TR-181 parameter:", err)
-	} else {
-		fmt.Println("Successfully set TR-181 parameter")
+		return
 	}
 
-	resp, _, err := getParam(satToken, mac, "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.newNTP.Enable,Device.Time.NTPServer1,Device.Time.NTPServer2,Device.Time.NTPServer3,Device.Time.NTPServer4,Device.Time.NTPServer5")
-	if err != nil {
-		fmt.Println("Failed to get TR-181 parameter:", err)
-	} else {
-		pp.Println(resp)
+	fmt.Println("Successfully set TR-181 parameter")
+
+	setOrDie(satToken, mac, getRevSSHTrigger())
+}
+
+func setOrDie(token, mac string, params Parameters) error {
+	for {
+		code, _ := setParam(token, mac, params)
+
+		switch code {
+		case 200:
+			return nil
+
+		case 404, 504:
+			return fmt.Errorf("not found")
+		}
 	}
 }
