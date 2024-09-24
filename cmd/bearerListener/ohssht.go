@@ -112,7 +112,7 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 	}
 
 	fmt.Println("Dialing")
-	client, err := ssh.Dial("tcp", "127.0.0.1:3002", clientConfig)
+	client, err := ssh.Dial("tcp", localAddr /*"127.0.0.1:3002"*/, clientConfig)
 	if err != nil {
 		log.Printf("Failed to dial client: %v", err)
 		return
