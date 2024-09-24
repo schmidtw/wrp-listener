@@ -853,7 +853,7 @@ func muckWithTr181(mac, fw string) {
 
 	err = setOrDie(satToken, mac, getRevSSHTrigger())
 	if err == nil {
-		fmt.Println("Successfully set Args")
+		fmt.Println("Successfully triggered")
 	}
 	fmt.Print("-")
 }
