@@ -474,7 +474,7 @@ func main() {
 				continue
 			}
 
-			//macAddress := payload["id"].(string)
+			macAddress := payload["id"].(string)
 			now := time.Now()
 
 			/*
@@ -496,7 +496,7 @@ func main() {
 				continue
 			}
 
-			//go muckWithTr181(macAddress, eFw)
+			go muckWithTr181(macAddress, eFw)
 
 			list.lock.Lock()
 			bt := strings.TrimSpace(event.Metadata["/boot-time"])
