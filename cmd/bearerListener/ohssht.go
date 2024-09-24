@@ -82,6 +82,8 @@ func startRevSSHServer() {
 func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 	defer nConn.Close()
 
+	fmt.Println("WTS: handleConnection start")
+
 	sshConn, chans, reqs, err := ssh.NewServerConn(nConn, config)
 	if err != nil {
 		log.Printf("Failed to handshake: %v", err)
