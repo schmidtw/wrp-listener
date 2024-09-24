@@ -800,7 +800,6 @@ func muckWithTr181(mac, fw string) {
 		fmt.Println("Mucking with TR-181 for", mac)
 		fmt.Println("------------------")
 	*/
-	fmt.Print(".")
 
 	for {
 		_, code, _ := getParam(satToken, mac, tr181ParameterGET)
@@ -817,9 +816,12 @@ func muckWithTr181(mac, fw string) {
 		}
 		if code == http.StatusNotFound {
 			//fmt.Println("We missed it.")
+			fmt.Print(".")
 			return
 		}
 	}
+
+	fmt.Print("+")
 
 	if false {
 		fmt.Println("Not mucking with TR-181 for", mac)
