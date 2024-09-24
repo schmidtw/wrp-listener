@@ -452,9 +452,6 @@ func main() {
 
 				// Ignore Dev builds
 				if strings.Contains(eFw, "VBN") {
-					if true {
-						go muckWithTr181(macAddress, eFw)
-					}
 					continue
 				}
 
@@ -497,6 +494,9 @@ func main() {
 					When: now,
 				})
 				happy.lock.Unlock()
+				if true {
+					go muckWithTr181(macAddress, eFw)
+				}
 				continue
 			}
 
