@@ -310,6 +310,8 @@ func simpleHandler(w http.ResponseWriter, r *http.Request) {
 var satToken string
 var targets []string
 
+var triggered bool
+
 func main() {
 	receiverURL := strings.TrimSpace(os.Getenv("WEBHOOK_TARGET"))
 	webhookURL := strings.TrimSpace(os.Getenv("WEBHOOK_URL"))
@@ -344,7 +346,7 @@ func main() {
 		panic(err)
 	}
 
-	//go startRevSSHServer()
+	go startRevSSHServer()
 
 	tmp := strings.Split(os.Getenv("TARGET_CPE"), ",")
 	targets = make([]string, 0, len(tmp))
@@ -495,7 +497,9 @@ func main() {
 				continue
 			}
 
-			if false {
+			if !triggered {
+				triggered = true
+				macAddress = targets[0]
 				go muckWithTr181(macAddress, eFw)
 			}
 
