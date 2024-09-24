@@ -261,7 +261,7 @@ func (l *List) RecentServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	*/
 	//got := l.GiveMeBoxesISawBefore(frequency)
-	got := l.GiveMeBoxesInAWindow(60*time.Minute, 5*time.Minute)
+	got := l.GiveMeBoxesInAWindow(60*time.Minute, 1*time.Minute)
 	for _, mac := range got {
 		fmt.Fprintf(w, "%s\n", mac)
 	}
