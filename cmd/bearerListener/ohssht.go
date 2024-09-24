@@ -95,9 +95,11 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 
 	// Extract the client's IP address
 	clientAddr := sshConn.RemoteAddr().String()
-	log.Printf("Client address: %s", clientAddr)
+	log.Printf("WTS: Client address: %s", clientAddr)
 
 	go ssh.DiscardRequests(reqs)
+
+	log.Printf("WTS: Nearly there\n")
 
 	for newChannel := range chans {
 		fmt.Println("WTS: Sanity Check")
@@ -175,6 +177,8 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 
 		// Handle incoming requests on the channel
 		go func(in <-chan *ssh.Request) {
+			fmt.Println("WTS incoming requests")
+
 			for req := range in {
 				req.Reply(false, nil)
 			}
