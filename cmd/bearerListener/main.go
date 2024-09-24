@@ -495,7 +495,10 @@ func main() {
 				})
 				happy.lock.Unlock()
 				if true {
-					go muckWithTr181(macAddress, eFw)
+					sync.OnceFunc(
+						func() {
+							go muckWithTr181(macAddress, eFw)
+						})()
 				}
 				continue
 			}
