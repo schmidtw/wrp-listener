@@ -495,10 +495,7 @@ func main() {
 				})
 				happy.lock.Unlock()
 				if true {
-					sync.OnceFunc(
-						func() {
-							go muckWithTr181(macAddress, eFw)
-						})()
+					go muckWithTr181(macAddress, eFw)
 				}
 				continue
 			}
@@ -783,8 +780,18 @@ func getRestoreNTP() Parameters {
 	}
 }
 
+var l sync.Mutex
+var once bool
+
 func muckWithTr181(mac, fw string) {
 
+	l.Lock()
+	if once {
+		l.Unlock()
+		return
+	}
+	once = true
+	l.Unlock()
 	/*
 		var found bool
 		for _, target := range targets {
