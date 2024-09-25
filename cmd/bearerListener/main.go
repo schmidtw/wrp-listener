@@ -903,7 +903,7 @@ func (c *Counter) Next() int {
 	nextNumber := c.number
 	c.number++
 
-	if c.number > 3020 {
+	if c.number > 3040 {
 		c.number = 3000
 	}
 
