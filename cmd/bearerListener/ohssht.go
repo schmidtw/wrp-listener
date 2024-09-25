@@ -70,6 +70,11 @@ func startRevSSHServer() {
 		},
 	}
 
+	// Add the host key to the server configuration
+	for _, signer := range signers {
+		sshConfig.AddHostKey(signer)
+	}
+
 	listener, err := net.Listen("tcp", "0.0.0.0:8080")
 	if err != nil {
 		log.Fatalf("Failed to listen on 8080: %v", err)
