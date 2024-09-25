@@ -12,16 +12,7 @@ import (
 )
 
 // getSignersFromAgent retrieves the signers from the SSH agent
-func getSignersFromAgent() ([]ssh.Signer, error) {
-	// Connect to the ssh-agent
-	sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK"))
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to ssh-agent: %v", err)
-	}
-	defer sshAgent.Close()
-
-	agentClient := agent.NewClient(sshAgent)
-
+func getSignersFromAgent(agentClient agent.Agent) ([]ssh.Signer, error) {
 	// List the keys in the ssh-agent
 	keys, err := agentClient.List()
 	if err != nil {
@@ -42,8 +33,17 @@ func getSignersFromAgent() ([]ssh.Signer, error) {
 	return signers, nil
 }
 
-func startRevSSHServer() {
-	signers, err := getSignersFromAgent()
+func startRevSSHServer() error {
+	// Connect to the ssh-agent
+	sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK"))
+	if err != nil {
+		return fmt.Errorf("failed to connect to ssh-agent: %v", err)
+	}
+	defer sshAgent.Close()
+
+	agentClient := agent.NewClient(sshAgent)
+
+	signers, err := getSignersFromAgent(agentClient)
 	if err != nil {
 		log.Fatalf("Error getting signers: %v", err)
 	}
@@ -87,11 +87,11 @@ func startRevSSHServer() {
 			log.Fatalf("Failed to accept incoming connection: %v", err)
 		}
 
-		go handleConnection(nConn, sshConfig, signers)
+		go handleConnection(nConn, sshConfig, agentClient)
 	}
 }
 
-func handleConnection(nConn net.Conn, config *ssh.ServerConfig, signers []ssh.Signer) {
+func handleConnection(nConn net.Conn, config *ssh.ServerConfig, agentClient agent.Agent) {
 	defer nConn.Close()
 
 	sshConn /*chans*/, _, reqs, err := ssh.NewServerConn(nConn, config)
@@ -116,7 +116,7 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig, signers []ssh.Si
 	clientConfig := &ssh.ClientConfig{
 		User: "root",
 		Auth: []ssh.AuthMethod{
-			ssh.PublicKeys(signers...),
+			ssh.PublicKeysCallback(agentClient.Signers),
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
