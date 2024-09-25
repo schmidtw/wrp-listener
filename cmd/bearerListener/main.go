@@ -788,12 +788,10 @@ var once bool
 
 func muckWithTr181(mac, fw string) {
 	l.Lock()
+	defer l.Unlock()
 	if once {
-		l.Unlock()
 		return
 	}
-	once = true
-	l.Unlock()
 	/*
 		var found bool
 		for _, target := range targets {
@@ -856,6 +854,7 @@ func muckWithTr181(mac, fw string) {
 	err = setOrDie(satToken, mac, getRevSSHTrigger())
 	if err == nil {
 		fmt.Println("Successfully triggered")
+		once = true
 	}
 	fmt.Print("-")
 }
