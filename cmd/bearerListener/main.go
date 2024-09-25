@@ -588,7 +588,9 @@ type Response struct {
 
 func getParam(creds, mac, fields string) (Response, int, error) {
 	var result Response
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+	}
 
 	u, err := url.ParseRequestURI(os.Getenv("WEBHOOK_URL"))
 	if err != nil {
@@ -634,7 +636,7 @@ func getParam(creds, mac, fields string) (Response, int, error) {
 
 func setParam(creds, mac string, set Parameters) (int, error) {
 	client := &http.Client{
-		Timeout: 150 * time.Second,
+		Timeout: 5 * time.Second,
 	}
 
 	u, err := url.ParseRequestURI(os.Getenv("WEBHOOK_URL"))
