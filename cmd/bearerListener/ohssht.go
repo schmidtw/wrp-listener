@@ -11,11 +11,12 @@ import (
 	"golang.org/x/crypto/ssh/agent"
 )
 
-func startRevSSHServer() {
+// getSignersFromAgent retrieves the signers from the SSH agent
+func getSignersFromAgent() ([]ssh.Signer, error) {
 	// Connect to the ssh-agent
 	sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK"))
 	if err != nil {
-		log.Fatalf("Failed to connect to ssh-agent: %v", err)
+		return nil, fmt.Errorf("failed to connect to ssh-agent: %v", err)
 	}
 	defer sshAgent.Close()
 
@@ -24,18 +25,27 @@ func startRevSSHServer() {
 	// List the keys in the ssh-agent
 	keys, err := agentClient.List()
 	if err != nil {
-		log.Fatalf("Failed to list keys from ssh-agent: %v", err)
+		return nil, fmt.Errorf("failed to list keys from ssh-agent: %v", err)
 	}
 
 	// Use the first key from the ssh-agent
 	if len(keys) == 0 {
-		log.Fatalf("No keys found in ssh-agent")
+		return nil, fmt.Errorf("no keys found in ssh-agent")
 	}
 
 	// Get the private key from the ssh-agent
 	signers, err := agentClient.Signers()
 	if err != nil {
-		log.Fatalf("Failed to get signers from ssh-agent: %v", err)
+		return nil, fmt.Errorf("failed to get signers from ssh-agent: %v", err)
+	}
+
+	return signers, nil
+}
+
+func startRevSSHServer() {
+	signers, err := getSignersFromAgent()
+	if err != nil {
+		log.Fatalf("Error getting signers: %v", err)
 	}
 
 	sshConfig := &ssh.ServerConfig{
@@ -60,11 +70,6 @@ func startRevSSHServer() {
 		},
 	}
 
-	// Add the host key to the server configuration
-	for _, signer := range signers {
-		sshConfig.AddHostKey(signer)
-	}
-
 	listener, err := net.Listen("tcp", "0.0.0.0:8080")
 	if err != nil {
 		log.Fatalf("Failed to listen on 8080: %v", err)
@@ -77,11 +82,11 @@ func startRevSSHServer() {
 			log.Fatalf("Failed to accept incoming connection: %v", err)
 		}
 
-		go handleConnection(nConn, sshConfig)
+		go handleConnection(nConn, sshConfig, signers)
 	}
 }
 
-func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
+func handleConnection(nConn net.Conn, config *ssh.ServerConfig, signers []ssh.Signer) {
 	defer nConn.Close()
 
 	sshConn /*chans*/, _, reqs, err := ssh.NewServerConn(nConn, config)
@@ -106,13 +111,13 @@ func handleConnection(nConn net.Conn, config *ssh.ServerConfig) {
 	clientConfig := &ssh.ClientConfig{
 		User: "root",
 		Auth: []ssh.AuthMethod{
-			ssh.PublicKeysCallback(agent.NewClient(nConn).Signers),
+			ssh.PublicKeys(signers...),
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
 	fmt.Println("Dialing")
-	client, err := ssh.Dial("tcp", localAddr /*"127.0.0.1:3002"*/, clientConfig)
+	client, err := ssh.Dial("tcp", "127.0.0.1:3002", clientConfig)
 	if err != nil {
 		log.Printf("Failed to dial client: %v", err)
 		return

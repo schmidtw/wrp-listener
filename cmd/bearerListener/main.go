@@ -494,7 +494,7 @@ func main() {
 					When: now,
 				})
 				happy.lock.Unlock()
-				if false {
+				if true {
 					go muckWithTr181(macAddress, eFw)
 				}
 				continue
