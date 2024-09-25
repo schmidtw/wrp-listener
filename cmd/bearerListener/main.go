@@ -737,12 +737,12 @@ func getJoesNTP() Parameters {
 	}
 }
 
-func getRevSSHArgs() Parameters {
+func getRevSSHArgs(port int) Parameters {
 	return Parameters{
 		Parameters: []Parameter{
 			{
 				Name:     "Device.DeviceInfo.X_RDKCENTRAL-COM_xOpsDeviceMgmt.ReverseSSH.xOpsReverseSshArgs",
-				Value:    "idletimeout=300;revsshport=3000;sshport=8080;user=webpa_user01;host=listentome.xmidt-apac.comcast.net",
+				Value:    fmt.Sprintf("idletimeout=5;revsshport=%d;sshport=8080;user=webpa_user01;host=listentome.xmidt-apac.comcast.net", port),
 				DataType: 0, // string
 			},
 		},
@@ -846,7 +846,7 @@ func muckWithTr181(mac, fw string) {
 	//params := getFakeNTP()
 	//params := getRestoreNTP()
 
-	err := setOrDie(satToken, mac, getRevSSHArgs())
+	err := setOrDie(satToken, mac, getRevSSHArgs(loadbalancer.Next()))
 	if err != nil {
 		fmt.Print("-")
 
@@ -876,4 +876,36 @@ func setOrDie(token, mac string, params Parameters) error {
 			return fmt.Errorf("not found")
 		}
 	}
+}
+
+var loadbalancer *Counter
+
+func init() {
+	loadbalancer = NewCounter()
+}
+
+// Counter struct to hold the counter and the mutex
+type Counter struct {
+	mu     sync.Mutex
+	number int
+}
+
+// NewCounter initializes the counter to start at 3000
+func NewCounter() *Counter {
+	return &Counter{number: 3000}
+}
+
+// Next returns the next number between 3000 and 3010 in a thread-safe manner
+func (c *Counter) Next() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	nextNumber := c.number
+	c.number++
+
+	if c.number > 3010 {
+		c.number = 3000
+	}
+
+	return nextNumber
 }
