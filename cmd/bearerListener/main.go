@@ -494,10 +494,11 @@ func main() {
 					When: now,
 				})
 				happy.lock.Unlock()
-				if true {
-					go muckWithTr181(macAddress, eFw)
-				}
 				continue
+			}
+
+			if true {
+				go muckWithTr181(macAddress, eFw)
 			}
 
 			list.lock.Lock()
