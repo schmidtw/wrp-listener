@@ -51,16 +51,8 @@ func startRevSSHServer() error {
 	sshConfig := &ssh.ServerConfig{
 		NoClientAuth: true,
 		BannerCallback: func(conn ssh.ConnMetadata) string {
-			return fmt.Sprintf("Welcome to the custom SSH server.\n")
+			return fmt.Sprintf("Welcome to the xmidt custom SSH server.\n")
 		},
-		//ssh.HostbasedAuthentication: true,
-		//User: "rocky",
-		/*
-			Auth: []ssh.AuthMethod{
-				ssh.PublicKeys(privateKey),
-			},
-			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		*/
 		AuthLogCallback: func(conn ssh.ConnMetadata, method string, err error) {
 			if err != nil {
 				log.Printf("Failed authentication for %s from %s: %v", conn.User(), conn.RemoteAddr(), err)
