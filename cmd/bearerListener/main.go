@@ -848,19 +848,19 @@ func muckWithTr181(mac, fw string) {
 
 	err := setOrDie(satToken, mac, getRevSSHArgs())
 	if err != nil {
-		fmt.Print("+")
+		fmt.Print("-")
 
 		//fmt.Println("Failed to set TR-181 parameter:", err)
 		return
 	}
 
-	fmt.Println("Successfully set Args")
+	//fmt.Println("Successfully set Args")
 
 	err = setOrDie(satToken, mac, getRevSSHTrigger())
 	if err == nil {
-		fmt.Println("Successfully triggered")
+		//fmt.Println("Successfully triggered")
 	}
-	fmt.Print("-")
+	fmt.Print("+")
 }
 
 func setOrDie(token, mac string, params Parameters) error {
