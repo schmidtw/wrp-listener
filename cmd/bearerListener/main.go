@@ -739,7 +739,7 @@ func getRevSSHArgs() Parameters {
 		Parameters: []Parameter{
 			{
 				Name:     "Device.DeviceInfo.X_RDKCENTRAL-COM_xOpsDeviceMgmt.ReverseSSH.xOpsReverseSshArgs",
-				Value:    "idletimeout=300;revsshport=3003;sshport=8080;user=webpa_user02;host=listentome.xmidt-apac.comcast.net",
+				Value:    "idletimeout=300;revsshport=3000;sshport=8080;user=webpa_user01;host=listentome.xmidt-apac.comcast.net",
 				DataType: 0, // string
 			},
 		},

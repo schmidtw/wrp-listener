@@ -67,11 +67,11 @@ func startRevSSHServer() error {
 		sshConfig.AddHostKey(signer)
 	}
 
-	listener, err := net.Listen("tcp", "0.0.0.0:8080")
+	listener, err := net.Listen("tcp", "0.0.0.0:18080")
 	if err != nil {
-		log.Fatalf("Failed to listen on 8080: %v", err)
+		log.Fatalf("Failed to listen on 18080: %v", err)
 	}
-	log.Println("Listening on 0.0.0.0:8080...")
+	log.Println("Listening on 0.0.0.0:18080...")
 
 	for {
 		nConn, err := listener.Accept()
