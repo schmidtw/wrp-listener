@@ -860,6 +860,7 @@ func muckWithTr181(mac, fw string) {
 	if err == nil {
 		//fmt.Println("Successfully triggered")
 	}
+	fmt.Println(mac)
 	fmt.Print("+")
 }
 
