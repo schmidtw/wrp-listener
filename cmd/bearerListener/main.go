@@ -387,6 +387,17 @@ func main() {
 
 	fmt.Println(whl.String())
 
+	go func() {
+		for {
+			var err error
+			time.Sleep(5 * time.Minute)
+			satToken, err = getSat()
+			if err != nil {
+				panic(err)
+			}
+		}
+	}()
+
 	el := eventListener{
 		l:   whl,
 		out: make(chan wrp.Message, 1000),
@@ -872,6 +883,9 @@ func setOrDie(token, mac string, params Parameters) error {
 		switch code {
 		case 200:
 			return nil
+
+		case 401, 403:
+			return fmt.Errorf("unauthorized")
 
 		case 404, 504:
 			return fmt.Errorf("not found")
